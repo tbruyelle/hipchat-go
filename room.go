@@ -1,6 +1,7 @@
 package hipchat
 
 import (
+	"fmt"
 	"net/http"
 )
 
@@ -45,4 +46,21 @@ func (c *Client) Rooms() (*Rooms, *http.Response, error) {
 		return nil, resp, err
 	}
 	return rooms, resp, nil
+}
+
+// Get room
+//
+// HipChat API docs: https://www.hipchat.com/docs/apiv2/method/get_room
+func (c *Client) Room(id string) (*Room, *http.Response, error) {
+	req, err := c.NewRequest("GET", fmt.Sprintf("room/%s", id), nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	room := new(Room)
+	resp, err := c.Do(req, room)
+	if err != nil {
+		return nil, resp, err
+	}
+	return room, resp, nil
 }

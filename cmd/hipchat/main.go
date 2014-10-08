@@ -15,7 +15,7 @@ func main() {
 	c := hipchat.NewClient(*token)
 	fmt.Printf("%s - %+v\n", *token, c)
 
-	v, resp, err := c.Rooms()
+	v, resp, err := c.Room("763227")
 	fmt.Println(resp, err)
 	fmt.Printf("\n%+v\n", v)
 
