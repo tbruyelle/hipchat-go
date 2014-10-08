@@ -66,8 +66,8 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return resp, errors.New("Server returns status!=200")
+	if c := resp.StatusCode; c < 200 && c > 299 {
+		return resp, errors.New("Server returns status!=2XX")
 	}
 
 	if v != nil {
@@ -78,4 +78,16 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 		}
 	}
 	return resp, err
+}
+
+func String(v string) *string {
+	p := new(string)
+	p = &v
+	return p
+}
+
+func Int(v int) *int {
+	p := new(int)
+	p = &v
+	return p
 }

@@ -31,6 +31,13 @@ type RoomLinks struct {
 	Participants string `json:"participants"`
 }
 
+type NotificationRequest struct {
+	Color         *string `json:"color,omitempty"`
+	Message       *string `json:"message,omitempty"`
+	Notify        *bool   `json:"notify,omitempty"`
+	MessageFormat *string `json:"message_format,omitempty"`
+}
+
 // Get all rooms
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/get_all_rooms
@@ -63,4 +70,16 @@ func (c *Client) Room(id string) (*Room, *http.Response, error) {
 		return nil, resp, err
 	}
 	return room, resp, nil
+}
+
+// Send room notification
+//
+// HipChat API docs: https://www.hipchat.com/docs/apiv2/method/send_room_notification
+func (c *Client) Notification(id string, notifReq *NotificationRequest) (*http.Response, error) {
+	req, err := c.NewRequest("POST", fmt.Sprintf("room/%s/notification", id), notifReq)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.Do(req, nil)
 }

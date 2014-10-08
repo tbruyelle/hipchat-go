@@ -19,4 +19,7 @@ func main() {
 	fmt.Println(resp, err)
 	fmt.Printf("\n%+v\n", v)
 
+	n := &hipchat.NotificationRequest{Message: hipchat.String("(lol)")}
+	resp, err = c.Notification("763227", n)
+	fmt.Println(resp, err)
 }
