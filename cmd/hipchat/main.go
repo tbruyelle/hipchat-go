@@ -15,11 +15,14 @@ func main() {
 	c := hipchat.NewClient(*token)
 	fmt.Printf("%s - %+v\n", *token, c)
 
-	v, resp, err := c.Room("763227")
+	rooms, resp, err := c.Room.List()
 	fmt.Println(resp, err)
-	fmt.Printf("\n%+v\n", v)
+	fmt.Printf("\n%+v\n", rooms)
+	room, resp, err := c.Room.Get("763227")
+	fmt.Println(resp, err)
+	fmt.Printf("\n%+v\n", room)
 
 	n := &hipchat.NotificationRequest{Message: hipchat.String("(lol)")}
-	resp, err = c.Notification("763227", n)
+	resp, err = c.Room.Notification("763227", n)
 	fmt.Println(resp, err)
 }

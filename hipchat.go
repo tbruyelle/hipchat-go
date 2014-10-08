@@ -17,6 +17,7 @@ type Client struct {
 	AuthToken string
 	BaseURL   *url.URL
 	client    *http.Client
+	Room      *roomService
 }
 
 func NewClient(authToken string) *Client {
@@ -25,11 +26,13 @@ func NewClient(authToken string) *Client {
 		panic(err)
 	}
 
-	return &Client{
+	c := &Client{
 		AuthToken: authToken,
 		BaseURL:   baseURL,
 		client:    http.DefaultClient,
 	}
+	c.Room = &roomService{client: c}
+	return c
 }
 
 func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Request, error) {

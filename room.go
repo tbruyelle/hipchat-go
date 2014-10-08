@@ -5,6 +5,10 @@ import (
 	"net/http"
 )
 
+type roomService struct {
+	client *Client
+}
+
 type Rooms struct {
 	Items      []Room     `json:"items"`
 	StartIndex int        `json:"startIndex"`
@@ -41,14 +45,14 @@ type NotificationRequest struct {
 // Get all rooms
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/get_all_rooms
-func (c *Client) Rooms() (*Rooms, *http.Response, error) {
-	req, err := c.NewRequest("GET", "room", nil)
+func (r *roomService) List() (*Rooms, *http.Response, error) {
+	req, err := r.client.NewRequest("GET", "room", nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	rooms := new(Rooms)
-	resp, err := c.Do(req, rooms)
+	resp, err := r.client.Do(req, rooms)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -58,14 +62,14 @@ func (c *Client) Rooms() (*Rooms, *http.Response, error) {
 // Get room
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/get_room
-func (c *Client) Room(id string) (*Room, *http.Response, error) {
-	req, err := c.NewRequest("GET", fmt.Sprintf("room/%s", id), nil)
+func (r *roomService) Get(id string) (*Room, *http.Response, error) {
+	req, err := r.client.NewRequest("GET", fmt.Sprintf("room/%s", id), nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	room := new(Room)
-	resp, err := c.Do(req, room)
+	resp, err := r.client.Do(req, room)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -75,11 +79,11 @@ func (c *Client) Room(id string) (*Room, *http.Response, error) {
 // Send room notification
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/send_room_notification
-func (c *Client) Notification(id string, notifReq *NotificationRequest) (*http.Response, error) {
-	req, err := c.NewRequest("POST", fmt.Sprintf("room/%s/notification", id), notifReq)
+func (r *roomService) Notification(id string, notifReq *NotificationRequest) (*http.Response, error) {
+	req, err := r.client.NewRequest("POST", fmt.Sprintf("room/%s/notification", id), notifReq)
 	if err != nil {
 		return nil, err
 	}
 
-	return c.Do(req, nil)
+	return r.client.Do(req, nil)
 }
