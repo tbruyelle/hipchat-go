@@ -14,8 +14,8 @@ const (
 )
 
 type Client struct {
-	AuthToken string
-	BaseURL   *url.URL
+	authToken string
+	baseURL   *url.URL
 	client    *http.Client
 	Room      *roomService
 }
@@ -27,8 +27,8 @@ func NewClient(authToken string) *Client {
 	}
 
 	c := &Client{
-		AuthToken: authToken,
-		BaseURL:   baseURL,
+		authToken: authToken,
+		baseURL:   baseURL,
 		client:    http.DefaultClient,
 	}
 	c.Room = &roomService{client: c}
@@ -41,7 +41,7 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Requ
 		return nil, err
 	}
 
-	u := c.BaseURL.ResolveReference(rel)
+	u := c.baseURL.ResolveReference(rel)
 
 	buf := new(bytes.Buffer)
 	if body != nil {
@@ -56,7 +56,7 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Requ
 		return nil, err
 	}
 
-	req.Header.Add("Authorization", "Bearer "+c.AuthToken)
+	req.Header.Add("Authorization", "Bearer "+c.authToken)
 	req.Header.Add("Content-Type", "application/json")
 	return req, nil
 }
@@ -69,7 +69,7 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 
 	defer resp.Body.Close()
 
-	if c := resp.StatusCode; c < 200 && c > 299 {
+	if c := resp.StatusCode; c < 200 || c > 299 {
 		return resp, errors.New("Server returns status!=2XX")
 	}
 
