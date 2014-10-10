@@ -1,16 +1,16 @@
-### HipChat Go client
+# HipChat Go client
 
 Go client library for the [HipChat API v2](https://www.hipchat.com/docs/apiv2).
 
 Currently only a small part of the API is implemented, so pull requests are welcome.
 
-##### Get the library
+### Get the library
 
 ```bash
 go get github.com/tbruyelle/hipchat
 ```
 
-##### Usage
+### Usage
 
 Spam all the rooms you have access to.
 
