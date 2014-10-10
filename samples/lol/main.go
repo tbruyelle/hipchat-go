@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"strconv"
+	"fmt"
 
 	"github.com/tbruyelle/hipchat"
 )
@@ -20,17 +20,12 @@ func main() {
 	}
 	c := hipchat.NewClient(*token)
 
-	rooms, _, err := c.Room.List()
-	if err != nil {
-		panic(err)
-	}
-
 	notifRq := &hipchat.NotificationRequest{Message: "Hey there!"}
-
-	for _, room := range rooms.Items {
-		_, err := c.Room.Notification(strconv.Itoa(room.ID), notifRq)
-		if err != nil {
-			panic(err)
-		}
+	resp, err := c.Room.Notification(*roomId, notifRq)
+	if err != nil {
+		fmt.Printf("Error during room notification %q\n", err)
+		fmt.Printf("Server returns %+v\n", resp)
+		return
 	}
+	fmt.Println("Lol sent !")
 }
