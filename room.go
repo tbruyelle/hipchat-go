@@ -48,7 +48,7 @@ type NotificationRequest struct {
 	MessageFormat string `json:"message_format,omitempty"`
 }
 
-// Get all rooms
+// List returns all the rooms authorized.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/get_all_rooms
 func (r *RoomService) List() (*Rooms, *http.Response, error) {
@@ -65,7 +65,7 @@ func (r *RoomService) List() (*Rooms, *http.Response, error) {
 	return rooms, resp, nil
 }
 
-// Get room
+// Get returns the room specified by the id.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/get_room
 func (r *RoomService) Get(id string) (*Room, *http.Response, error) {
@@ -82,7 +82,7 @@ func (r *RoomService) Get(id string) (*Room, *http.Response, error) {
 	return room, resp, nil
 }
 
-// Send room notification
+// Notification sends a notification to the room specified by the id.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/send_room_notification
 func (r *RoomService) Notification(id string, notifReq *NotificationRequest) (*http.Response, error) {
