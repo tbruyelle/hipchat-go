@@ -10,9 +10,9 @@ Currently only a small part of the API is implemented, so pull requests are welc
 go get github.com/tbruyelle/hipchat
 ```
 
-### Usage
+### Example
 
-Spam all the rooms you have access to.
+Spam all the rooms you have access to (not recommanded):
 
 ```go
 c := hipchat.NewClient("<your AuthToken here>")
