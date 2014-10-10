@@ -14,6 +14,11 @@ var (
 
 func main() {
 	flag.Parse()
+	if *token == "" || *roomId == "" {
+		flag.PrintDefaults()
+		return
+	}
+
 	c := hipchat.NewClient(*token)
 
 	n := &hipchat.NotificationRequest{Message: "(lol)", MessageFormat: "text"}
@@ -21,6 +26,7 @@ func main() {
 	if err != nil {
 		fmt.Printf("Error during room notification %q\n", err)
 		fmt.Printf("Server returns %+v\n", resp)
+		return
 	}
 	fmt.Println("lol sent !")
 }
