@@ -4,7 +4,7 @@ package hipchat
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -80,7 +80,7 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 	defer resp.Body.Close()
 
 	if c := resp.StatusCode; c < 200 || c > 299 {
-		return resp, errors.New("Server returns status!=2XX")
+		return resp, fmt.Errorf("Server returns status %d", c)
 	}
 
 	if v != nil {
