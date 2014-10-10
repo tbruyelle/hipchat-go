@@ -9,6 +9,7 @@ type roomService struct {
 	client *Client
 }
 
+// Rooms represents a HipChat room list.
 type Rooms struct {
 	Items      []Room     `json:"items"`
 	StartIndex int        `json:"startIndex"`
@@ -16,18 +17,21 @@ type Rooms struct {
 	Links      RoomsLinks `json:"links"`
 }
 
+// RoomsLinks represents the HipChat room list link.
 type RoomsLinks struct {
 	Self string `json:"self"`
 	Prev string `json:"prev"`
 	Next string `json:"next"`
 }
 
+// Room represents a HipChat room.
 type Room struct {
-	Id    int       `json:"id"`
+	ID    int       `json:"id"`
 	Links RoomLinks `json:"links"`
 	Name  string    `json:"name"`
 }
 
+// RoomLinks represents the HipChat room links.
 type RoomLinks struct {
 	Self         string `json:"self"`
 	Webhooks     string `json:"webhooks"`
@@ -35,11 +39,12 @@ type RoomLinks struct {
 	Participants string `json:"participants"`
 }
 
+// NotificationRequest represents a HipChat room notification request.
 type NotificationRequest struct {
-	Color         *string `json:"color,omitempty"`
-	Message       *string `json:"message,omitempty"`
-	Notify        *bool   `json:"notify,omitempty"`
-	MessageFormat *string `json:"message_format,omitempty"`
+	Color         string `json:"color,omitempty"`
+	Message       string `json:"message,omitempty"`
+	Notify        bool   `json:"notify,omitempty"`
+	MessageFormat string `json:"message_format,omitempty"`
 }
 
 // Get all rooms

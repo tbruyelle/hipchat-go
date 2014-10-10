@@ -1,3 +1,4 @@
+// Package hipchat provides a client for using the HipChat API v2.
 package hipchat
 
 import (
@@ -13,13 +14,17 @@ const (
 	defaultBaseURL = "https://api.hipchat.com/v2/"
 )
 
+// Client manages the communication with the HipChat API.
 type Client struct {
 	authToken string
 	baseURL   *url.URL
 	client    *http.Client
-	Room      *roomService
+	// Room gives access to the /room part of the API.
+	Room *roomService
 }
 
+// NewClient returns a new HipChat API client. You must provide a valid
+// AuthToken retrieved from your HipChat account.
 func NewClient(authToken string) *Client {
 	baseURL, err := url.Parse(defaultBaseURL)
 	if err != nil {
@@ -35,6 +40,9 @@ func NewClient(authToken string) *Client {
 	return c
 }
 
+// NewRequest creates an API request. This method can be used to performs
+// API request not implemented in this library. Otherwise it should not be
+// be used directly.
 func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Request, error) {
 	rel, err := url.Parse(urlStr)
 	if err != nil {
@@ -61,6 +69,8 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Requ
 	return req, nil
 }
 
+// Do performs the request, the json received in the response is decoded
+// and stored in the value pointed by v.
 func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 	resp, err := c.client.Do(req)
 	if err != nil {
@@ -81,16 +91,4 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 		}
 	}
 	return resp, err
-}
-
-func String(v string) *string {
-	p := new(string)
-	p = &v
-	return p
-}
-
-func Int(v int) *int {
-	p := new(int)
-	p = &v
-	return p
 }
