@@ -2,6 +2,8 @@
 
 Go client library for the [HipChat API v2](https://www.hipchat.com/docs/apiv2).
 
+[GoDoc](https://godoc.org/github.com/tbruyelle/hipchat)
+
 Currently only a small part of the API is implemented, so pull requests are welcome.
 
 ### Get the library

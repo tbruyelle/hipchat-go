@@ -5,7 +5,8 @@ import (
 	"net/http"
 )
 
-type roomService struct {
+// RoomService gives access to the room related methods of the API.
+type RoomService struct {
 	client *Client
 }
 
@@ -50,7 +51,7 @@ type NotificationRequest struct {
 // Get all rooms
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/get_all_rooms
-func (r *roomService) List() (*Rooms, *http.Response, error) {
+func (r *RoomService) List() (*Rooms, *http.Response, error) {
 	req, err := r.client.NewRequest("GET", "room", nil)
 	if err != nil {
 		return nil, nil, err
@@ -67,7 +68,7 @@ func (r *roomService) List() (*Rooms, *http.Response, error) {
 // Get room
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/get_room
-func (r *roomService) Get(id string) (*Room, *http.Response, error) {
+func (r *RoomService) Get(id string) (*Room, *http.Response, error) {
 	req, err := r.client.NewRequest("GET", fmt.Sprintf("room/%s", id), nil)
 	if err != nil {
 		return nil, nil, err
@@ -84,7 +85,7 @@ func (r *roomService) Get(id string) (*Room, *http.Response, error) {
 // Send room notification
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/send_room_notification
-func (r *roomService) Notification(id string, notifReq *NotificationRequest) (*http.Response, error) {
+func (r *RoomService) Notification(id string, notifReq *NotificationRequest) (*http.Response, error) {
 	req, err := r.client.NewRequest("POST", fmt.Sprintf("room/%s/notification", id), notifReq)
 	if err != nil {
 		return nil, err
