@@ -35,6 +35,6 @@ for _, room := range rooms.Items {
 ```
 
 ---
-The code architecture is hugely inspired by google/go-github.
+The code architecture is hugely inspired by [google/go-github](github.com/google/go-github).
 
 
