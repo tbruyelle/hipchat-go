@@ -43,6 +43,7 @@ func NewClient(authToken string) *Client {
 // NewRequest creates an API request. This method can be used to performs
 // API request not implemented in this library. Otherwise it should not be
 // be used directly.
+// Relative URLs should always be specified without a preceding slash.
 func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Request, error) {
 	rel, err := url.Parse(urlStr)
 	if err != nil {
