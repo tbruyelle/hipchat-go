@@ -45,7 +45,7 @@ func TestNewClient(t *testing.T) {
 		t.Errorf("NewClient authToken %s, want %s", c.authToken, authToken)
 	}
 	if c.baseURL.String() != defaultBaseURL {
-		t.Error("NewClient baseURL %s, want %s", c.baseURL.String(), defaultBaseURL)
+		t.Errorf("NewClient baseURL %s, want %s", c.baseURL.String(), defaultBaseURL)
 	}
 }
 
