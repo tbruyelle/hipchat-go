@@ -6,10 +6,10 @@ Go client library for the [HipChat API v2](https://www.hipchat.com/docs/apiv2).
 
 Currently only a small part of the API is implemented, so pull requests are welcome.
 
-### Get the library
+### Import the library
 
-```bash
-go get github.com/tbruyelle/hipchat
+```go
+import "github.com/tbruyelle/hipchat-go/hipchat"
 ```
 
 ### Example
