@@ -1,10 +1,12 @@
 package hipchat
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"reflect"
 	"testing"
 )
 
@@ -68,5 +70,32 @@ func TestNewRequest(t *testing.T) {
 	contentType := r.Header.Get("Content-Type")
 	if contentType != "application/json" {
 		t.Errorf("NewRequest Content-Type header %s, want application/json", contentType)
+	}
+}
+
+func TestDo(t *testing.T) {
+	setup()
+	defer teardown()
+
+	type foo struct {
+		Bar int
+	}
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if m := "GET"; m != r.Method {
+			t.Errorf("Request method = %v, want %v", r.Method, m)
+		}
+		fmt.Fprintf(w, `{"Bar":1}`)
+	})
+	req, _ := client.NewRequest("GET", "/", nil)
+	body := new(foo)
+
+	_, err := client.Do(req, body)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := &foo{Bar: 1}
+	if !reflect.DeepEqual(body, want) {
+		t.Errorf("Response body = %v, want %v", body, want)
 	}
 }
