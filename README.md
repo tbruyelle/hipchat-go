@@ -6,13 +6,11 @@ Go client library for the [HipChat API v2](https://www.hipchat.com/docs/apiv2).
 
 Currently only a small part of the API is implemented, so pull requests are welcome.
 
-### Import the library
+### Usage
 
 ```go
 import "github.com/tbruyelle/hipchat-go/hipchat"
 ```
-
-### Example
 
 Spam all the rooms you have access to (not recommanded):
 
@@ -33,6 +31,7 @@ for _, room := range rooms.Items {
 	}
 }
 ```
+
 
 ---
 The code architecture is hugely inspired by [google/go-github](github.com/google/go-github).
