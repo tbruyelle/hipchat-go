@@ -1,4 +1,4 @@
-# HipChat
+# hipchat-go 
 
 Go client library for the [HipChat API v2](https://www.hipchat.com/docs/apiv2).
 
