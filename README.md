@@ -12,7 +12,7 @@ Currently only a small part of the API is implemented, so pull requests are welc
 import "github.com/tbruyelle/hipchat-go/hipchat"
 ```
 
-Spam all the rooms you have access to (not recommanded):
+Build a new client, then use the `client.Room` service to spam all the rooms you have access to (not recommanded):
 
 ```go
 c := hipchat.NewClient("<your AuthToken here>")
