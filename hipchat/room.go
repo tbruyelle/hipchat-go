@@ -68,8 +68,8 @@ func (r *RoomService) List() (*Rooms, *http.Response, error) {
 // Get returns the room specified by the id.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/get_room
-func (r *RoomService) Get(id string) (*Room, *http.Response, error) {
-	req, err := r.client.NewRequest("GET", fmt.Sprintf("room/%s", id), nil)
+func (r *RoomService) Get(id int) (*Room, *http.Response, error) {
+	req, err := r.client.NewRequest("GET", fmt.Sprintf("room/%d", id), nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -85,8 +85,8 @@ func (r *RoomService) Get(id string) (*Room, *http.Response, error) {
 // Notification sends a notification to the room specified by the id.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/send_room_notification
-func (r *RoomService) Notification(id string, notifReq *NotificationRequest) (*http.Response, error) {
-	req, err := r.client.NewRequest("POST", fmt.Sprintf("room/%s/notification", id), notifReq)
+func (r *RoomService) Notification(id int, notifReq *NotificationRequest) (*http.Response, error) {
+	req, err := r.client.NewRequest("POST", fmt.Sprintf("room/%d/notification", id), notifReq)
 	if err != nil {
 		return nil, err
 	}

@@ -9,12 +9,12 @@ import (
 
 var (
 	token  = flag.String("token", "", "The HipChat AuthToken")
-	roomId = flag.String("room", "", "The HipChat room id")
+	roomId = flag.Int("room", 0, "The HipChat room id")
 )
 
 func main() {
 	flag.Parse()
-	if *token == "" || *roomId == "" {
+	if *token == "" || *roomId == 0 {
 		flag.PrintDefaults()
 		return
 	}

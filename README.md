@@ -25,7 +25,7 @@ if err != nil {
 notifRq := &hipchat.NotificationRequest{Message: "Hey there!"}
 
 for _, room := range rooms.Items {
-	_, err := c.Room.Notification(strconv.Itoa(room.ID), notifRq)
+	_, err := c.Room.Notification(room.ID, notifRq)
 	if err != nil {
 		panic(err)
 	}
