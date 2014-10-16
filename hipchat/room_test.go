@@ -1,6 +1,7 @@
 package hipchat
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -36,7 +37,13 @@ func TestRoomList(t *testing.T) {
 		if m := "GET"; m != r.Method {
 			t.Errorf("Request method %s, want %s", r.Method, m)
 		}
-		fmt.Fprintf(w, `{"items":[{"id":1,"name":"n"}], "startIndex":1,"maxResults":1,"links":{"Self":"s"}}`)
+		fmt.Fprintf(w, `
+		{
+			"items": [{"id":1,"name":"n"}], 
+			"startIndex":1,
+			"maxResults":1,
+			"links":{"Self":"s"}
+		}`)
 	})
 	want := &Rooms{Items: []Room{Room{ID: 1, Name: "n"}}, StartIndex: 1, MaxResults: 1, Links: RoomsLinks{Self: "s"}}
 
@@ -46,5 +53,30 @@ func TestRoomList(t *testing.T) {
 	}
 	if !reflect.DeepEqual(want, rooms) {
 		t.Errorf("Room.List returned %+v, want %+v", rooms, want)
+	}
+}
+
+func TestRoomNotification(t *testing.T) {
+	setup()
+	defer teardown()
+
+	args := &NotificationRequest{Message: "m", MessageFormat: "text"}
+
+	mux.HandleFunc("/room/1/notification", func(w http.ResponseWriter, r *http.Request) {
+		if m := "POST"; m != r.Method {
+			t.Errorf("Request method %s, want %s", r.Method, m)
+		}
+		v := new(NotificationRequest)
+		json.NewDecoder(r.Body).Decode(v)
+
+		if !reflect.DeepEqual(v, args) {
+			t.Errorf("Request body %+v, want %+v", v, args)
+		}
+		w.WriteHeader(http.StatusNoContent)
+	})
+
+	_, err := client.Room.Notification(1, args)
+	if err != nil {
+		t.Fatalf("Room.Notification returns an error %v", err)
 	}
 }
