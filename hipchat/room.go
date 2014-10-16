@@ -37,7 +37,7 @@ type CreateRoomRequest struct {
 	Topic       string `json:"topic,omitempty"`
 	GuestAccess bool   `json:"guest_access,omitempty"`
 	Name        string `json:"name,omitempty"`
-	OwnerUserId string `json:"owner_user_id,omitempty"`
+	OwnerUserID string `json:"owner_user_id,omitempty"`
 	Privacy     string `json:"privacy,omitempty"`
 }
 
@@ -103,6 +103,9 @@ func (r *RoomService) Notification(id int, notifReq *NotificationRequest) (*http
 	return r.client.Do(req, nil)
 }
 
+// Create creates a new room.
+//
+// HipChat API docs: https://www.hipchat.com/docs/apiv2/method/create_room
 func (r *RoomService) Create(roomReq *CreateRoomRequest) (*Room, *http.Response, error) {
 	req, err := r.client.NewRequest("POST", "room", roomReq)
 	if err != nil {
