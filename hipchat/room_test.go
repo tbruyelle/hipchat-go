@@ -80,3 +80,32 @@ func TestRoomNotification(t *testing.T) {
 		t.Fatalf("Room.Notification returns an error %v", err)
 	}
 }
+
+func TestRoomCreate(t *testing.T) {
+	setup()
+	defer teardown()
+
+	args := &CreateRoomRequest{Name: "n", Topic: "t"}
+
+	mux.HandleFunc("/room", func(w http.ResponseWriter, r *http.Request) {
+		if m := "POST"; m != r.Method {
+			t.Errorf("Request method %s, want %s", r.Method, m)
+		}
+		v := new(CreateRoomRequest)
+		json.NewDecoder(r.Body).Decode(v)
+
+		if !reflect.DeepEqual(v, args) {
+			t.Errorf("Request body %+v, want %+v", v, args)
+		}
+		fmt.Fprintf(w, `{"id":1,"links":{"self":"s"}}`)
+	})
+	want := &Room{ID: 1, Links: RoomLinks{Self: "s"}}
+
+	room, _, err := client.Room.Create(args)
+	if err != nil {
+		t.Fatalf("Room.Create returns an error %v", err)
+	}
+	if !reflect.DeepEqual(room, want) {
+		t.Errorf("Room.Create returns %+v, want %+v", room, want)
+	}
+}

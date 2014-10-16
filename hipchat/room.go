@@ -32,6 +32,15 @@ type Room struct {
 	Name  string    `json:"name"`
 }
 
+// CreateRoomRequest represents a HipChat room creation request.
+type CreateRoomRequest struct {
+	Topic       string `json:"topic,omitempty"`
+	GuestAccess bool   `json:"guest_access,omitempty"`
+	Name        string `json:"name,omitempty"`
+	OwnerUserId string `json:"owner_user_id,omitempty"`
+	Privacy     string `json:"privacy,omitempty"`
+}
+
 // RoomLinks represents the HipChat room links.
 type RoomLinks struct {
 	Self         string `json:"self"`
@@ -92,4 +101,18 @@ func (r *RoomService) Notification(id int, notifReq *NotificationRequest) (*http
 	}
 
 	return r.client.Do(req, nil)
+}
+
+func (r *RoomService) Create(roomReq *CreateRoomRequest) (*Room, *http.Response, error) {
+	req, err := r.client.NewRequest("POST", "room", roomReq)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	room := new(Room)
+	resp, err := r.client.Do(req, room)
+	if err != nil {
+		return nil, resp, err
+	}
+	return room, resp, nil
 }
