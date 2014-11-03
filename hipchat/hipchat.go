@@ -23,6 +23,18 @@ type Client struct {
 	Room *RoomService
 }
 
+// Links represents the HipChat default links.
+type Links struct {
+	Self string `json:"self"`
+}
+
+// PageLinks represents the HipChat page links.
+type PageLinks struct {
+	Links
+	Prev string `json:"prev"`
+	Next string `json:"next"`
+}
+
 // NewClient returns a new HipChat API client. You must provide a valid
 // AuthToken retrieved from your HipChat account.
 func NewClient(authToken string) *Client {

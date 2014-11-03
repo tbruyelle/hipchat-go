@@ -16,9 +16,25 @@ func TestRoomGet(t *testing.T) {
 		if m := "GET"; m != r.Method {
 			t.Errorf("Request method = %v, want %v", r.Method, m)
 		}
-		fmt.Fprintf(w, `{"id":1, "name":"n", "links":{"self":"s"}}`)
+		fmt.Fprintf(w, `
+		{
+			"id":1, 
+			"name":"n", 
+			"links":{"self":"s"},
+			"Participants":[
+				{"Name":"n1"},
+				{"Name":"n2"}
+			],
+			"Owner":{"Name":"n1"}
+		}`)
 	})
-	want := &Room{ID: 1, Name: "n", Links: RoomLinks{Self: "s"}}
+	want := &Room{
+		ID:           1,
+		Name:         "n",
+		Links:        RoomLinks{Links: Links{Self: "s"}},
+		Participants: []User{User{Name: "n1"}, User{Name: "n2"}},
+		Owner:        User{Name: "n1"},
+	}
 
 	room, _, err := client.Room.Get(1)
 	if err != nil {
@@ -45,7 +61,7 @@ func TestRoomList(t *testing.T) {
 			"links":{"Self":"s"}
 		}`)
 	})
-	want := &Rooms{Items: []Room{Room{ID: 1, Name: "n"}}, StartIndex: 1, MaxResults: 1, Links: RoomsLinks{Self: "s"}}
+	want := &Rooms{Items: []Room{Room{ID: 1, Name: "n"}}, StartIndex: 1, MaxResults: 1, Links: PageLinks{Links: Links{Self: "s"}}}
 
 	rooms, _, err := client.Room.List()
 	if err != nil {
@@ -99,7 +115,7 @@ func TestRoomCreate(t *testing.T) {
 		}
 		fmt.Fprintf(w, `{"id":1,"links":{"self":"s"}}`)
 	})
-	want := &Room{ID: 1, Links: RoomLinks{Self: "s"}}
+	want := &Room{ID: 1, Links: RoomLinks{Links: Links{Self: "s"}}}
 
 	room, _, err := client.Room.Create(args)
 	if err != nil {

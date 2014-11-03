@@ -12,24 +12,32 @@ type RoomService struct {
 
 // Rooms represents a HipChat room list.
 type Rooms struct {
-	Items      []Room     `json:"items"`
-	StartIndex int        `json:"startIndex"`
-	MaxResults int        `json:"maxResults"`
-	Links      RoomsLinks `json:"links"`
-}
-
-// RoomsLinks represents the HipChat room list link.
-type RoomsLinks struct {
-	Self string `json:"self"`
-	Prev string `json:"prev"`
-	Next string `json:"next"`
+	Items      []Room    `json:"items"`
+	StartIndex int       `json:"startIndex"`
+	MaxResults int       `json:"maxResults"`
+	Links      PageLinks `json:"links"`
 }
 
 // Room represents a HipChat room.
 type Room struct {
-	ID    int       `json:"id"`
-	Links RoomLinks `json:"links"`
-	Name  string    `json:"name"`
+	ID                int            `json:"id"`
+	Links             RoomLinks      `json:"links"`
+	Name              string         `json:"name"`
+	XmppJid           string         `json:"xmpp_jid"`
+	Statistics        RoomStatistics `json:"statistics"`
+	Created           string         `json:"created"`
+	IsArchived        bool           `json:"is_archived"`
+	Privacy           string         `json:"privacy"`
+	IsGuestAccessible bool           `json:"is_guess_accessible"`
+	Topic             string         `json:"topic"`
+	Participants      []User         `json:"participants"`
+	Owner             User           `json:"owner"`
+	GuestAccessURL    string         `json:"guest_access_url"`
+}
+
+// RoomStatistics represents the HipChat room statistics.
+type RoomStatistics struct {
+	Links Links `json:"links"`
 }
 
 // CreateRoomRequest represents a HipChat room creation request.
@@ -43,7 +51,7 @@ type CreateRoomRequest struct {
 
 // RoomLinks represents the HipChat room links.
 type RoomLinks struct {
-	Self         string `json:"self"`
+	Links
 	Webhooks     string `json:"webhooks"`
 	Members      string `json:"members"`
 	Participants string `json:"participants"`
