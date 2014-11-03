@@ -36,7 +36,7 @@ func TestRoomGet(t *testing.T) {
 		Owner:        User{Name: "n1"},
 	}
 
-	room, _, err := client.Room.Get(1)
+	room, _, err := client.Room.Get("1")
 	if err != nil {
 		t.Fatalf("Room.Get returns an error %v", err)
 	}
@@ -91,7 +91,7 @@ func TestRoomNotification(t *testing.T) {
 		w.WriteHeader(http.StatusNoContent)
 	})
 
-	_, err := client.Room.Notification(1, args)
+	_, err := client.Room.Notification("1", args)
 	if err != nil {
 		t.Fatalf("Room.Notification returns an error %v", err)
 	}
@@ -123,5 +123,29 @@ func TestRoomCreate(t *testing.T) {
 	}
 	if !reflect.DeepEqual(room, want) {
 		t.Errorf("Room.Create returns %+v, want %+v", room, want)
+	}
+}
+
+func TestRoomUpdate(t *testing.T) {
+	setup()
+	defer teardown()
+
+	args := &UpdateRoomRequest{Name: "n", Topic: "t"}
+
+	mux.HandleFunc("/room/1", func(w http.ResponseWriter, r *http.Request) {
+		if m := "PUT"; m != r.Method {
+			t.Errorf("Request method %s, want %s", r.Method, m)
+		}
+		v := new(UpdateRoomRequest)
+		json.NewDecoder(r.Body).Decode(v)
+
+		if !reflect.DeepEqual(v, args) {
+			t.Errorf("Request body %+v, want %+v", v, args)
+		}
+	})
+
+	_, err := client.Room.Update("1", args)
+	if err != nil {
+		t.Fatalf("Room.Update returns an error %v", err)
 	}
 }

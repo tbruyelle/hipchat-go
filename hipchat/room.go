@@ -49,6 +49,16 @@ type CreateRoomRequest struct {
 	Privacy     string `json:"privacy,omitempty"`
 }
 
+// UpdateRoomRequest represents a HipChat room update request.
+type UpdateRoomRequest struct {
+	Name          string `json:"name"`
+	Topic         string `json:"topic"`
+	IsGuestAccess bool   `json:"is_guest_access"`
+	IsArchived    bool   `json:"is_archived"`
+	Privacy       string `json:"privacy"`
+	Owner         ID     `json:"owner"`
+}
+
 // RoomLinks represents the HipChat room links.
 type RoomLinks struct {
 	Links
@@ -85,8 +95,8 @@ func (r *RoomService) List() (*Rooms, *http.Response, error) {
 // Get returns the room specified by the id.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/get_room
-func (r *RoomService) Get(id int) (*Room, *http.Response, error) {
-	req, err := r.client.NewRequest("GET", fmt.Sprintf("room/%d", id), nil)
+func (r *RoomService) Get(id string) (*Room, *http.Response, error) {
+	req, err := r.client.NewRequest("GET", fmt.Sprintf("room/%s", id), nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -102,8 +112,8 @@ func (r *RoomService) Get(id int) (*Room, *http.Response, error) {
 // Notification sends a notification to the room specified by the id.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/send_room_notification
-func (r *RoomService) Notification(id int, notifReq *NotificationRequest) (*http.Response, error) {
-	req, err := r.client.NewRequest("POST", fmt.Sprintf("room/%d/notification", id), notifReq)
+func (r *RoomService) Notification(id string, notifReq *NotificationRequest) (*http.Response, error) {
+	req, err := r.client.NewRequest("POST", fmt.Sprintf("room/%s/notification", id), notifReq)
 	if err != nil {
 		return nil, err
 	}
@@ -126,4 +136,16 @@ func (r *RoomService) Create(roomReq *CreateRoomRequest) (*Room, *http.Response,
 		return nil, resp, err
 	}
 	return room, resp, nil
+}
+
+// Update updates an existing room.
+//
+// HipChat API docs: https://www.hipchat.com/docs/apiv2/method/update_room
+func (r *RoomService) Update(id string, roomReq *UpdateRoomRequest) (*http.Response, error) {
+	req, err := r.client.NewRequest("PUT", fmt.Sprintf("room/%s", id), roomReq)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.client.Do(req, nil)
 }

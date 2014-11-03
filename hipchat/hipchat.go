@@ -35,6 +35,12 @@ type PageLinks struct {
 	Next string `json:"next"`
 }
 
+// ID represents a HipChat id.
+// Use a separate struct because it can be a string or a int.
+type ID struct {
+	ID string `json:"id"`
+}
+
 // NewClient returns a new HipChat API client. You must provide a valid
 // AuthToken retrieved from your HipChat account.
 func NewClient(authToken string) *Client {
