@@ -7,5 +7,5 @@ Prints the `(lol)` emoticon in the room in parameter.
 
 ```bash
 go build
-./lol --token=<your auth token> --room=<room id>
+./hiplol --token=<your auth token> --room=<room id>
 ```
