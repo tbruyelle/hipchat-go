@@ -72,6 +72,8 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Requ
 
 // Do performs the request, the json received in the response is decoded
 // and stored in the value pointed by v.
+// Do can be used to perform the request created with NewRequest, as the latter
+// it should be used only for API requests not implemented in this library.
 func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 	resp, err := c.client.Do(req)
 	if err != nil {
