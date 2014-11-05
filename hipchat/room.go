@@ -149,3 +149,57 @@ func (r *RoomService) Update(id string, roomReq *UpdateRoomRequest) (*http.Respo
 
 	return r.client.Do(req, nil)
 }
+
+// List all webhooks for a given room.
+//
+// HipChat API docs: https://www.hipchat.com/docs/apiv2/method/get_all_webhooks
+func (r *RoomService) GetAllWebhooks(id string, roomReq *GetAllWebhooksRequest) (*WebhookList, *http.Response, error) {
+	req, err := r.client.NewRequest("GET", fmt.Sprintf("room/%s/webhook", id), roomReq)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	whList := new(WebhookList)
+
+	resp, err := r.client.Do(req, whList)
+	if err != nil {
+		return nil, resp, err
+	}
+	return whList, resp, nil
+}
+
+// Delete a given webhook.
+//
+// HipChat API docs: https://www.hipchat.com/docs/apiv2/method/delete_webhook
+func (r *RoomService) DeleteWebhook(id string, webhookId string) (*http.Response, error) {
+	req, err := r.client.NewRequest("DELETE", fmt.Sprintf("room/%s/webhook/%s", id, webhookId), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := r.client.Do(req, nil)
+	if err != nil {
+		return resp, err
+	}
+
+	return resp, nil
+}
+
+// Create a new webhook.
+//
+// HipChat API docs: https://www.hipchat.com/docs/apiv2/method/create_webhook
+func (r *RoomService) CreateWebhook(id string, roomReq *CreateWebhookRequest) (*Webhook, *http.Response, error) {
+	req, err := r.client.NewRequest("POST", fmt.Sprintf("room/%s/webhook", id), roomReq)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	wh := new(Webhook)
+
+	resp, err := r.client.Do(req, wh)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return wh, resp, nil
+}
