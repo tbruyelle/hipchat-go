@@ -14,7 +14,7 @@ type Webhook struct {
 	Event        string       `json:"event"`
 	Pattern      string       `json:"pattern"`
 	URL          string       `json:"url"`
-	ID           interface{}  `json:"id,omitempty"`
+	ID           int          `json:"id,omitempty"`
 }
 
 type WebhookList struct {

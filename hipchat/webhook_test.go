@@ -56,9 +56,25 @@ func TestWebhookGet(t *testing.T) {
 
 	actual, _, err := client.Room.GetAllWebhooks("1", reqParams)
 	if err != nil {
-		t.Fatalf("Room.Get returns an error %v", err)
+		t.Fatalf("Room.GetAllWebhooks returns an error %v", err)
 	}
 	if !reflect.DeepEqual(want, actual) {
-		t.Errorf("Room.Get returned %+v, want %+v", actual, want)
+		t.Errorf("Room.GetAllWebhooks returned %+v, want %+v", actual, want)
+	}
+}
+
+func TestWebhookDelete(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/room/1/webhook/2", func(w http.ResponseWriter, r *http.Request) {
+		if m := "DELETE"; m != r.Method {
+			t.Errorf("Request method %s, want %s", r.Method, m)
+		}
+	})
+
+	_, err := client.Room.DeleteWebhook("1", "2")
+	if err != nil {
+		t.Fatalf("Room.Update returns an error %v", err)
 	}
 }
