@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 
 	"github.com/abachman/hipchat-go/hipchat"
 )
@@ -42,7 +41,7 @@ func main() {
 			for _, room := range rooms.Items {
 				fmt.Printf("%-25v%10v\n", room.Name, room.ID)
 
-				hooks, resp, err := c.Room.GetAllWebhooks(strconv.Itoa(room.ID), nil)
+				hooks, resp, err := c.Room.GetAllWebhooks(room.ID, nil)
 				handleRequestError(resp, err)
 
 				for _, webhook := range hooks.Webhooks {
@@ -98,8 +97,13 @@ func main() {
 
 func handleRequestError(resp *http.Response, err error) {
 	if err != nil {
-		body, _ := ioutil.ReadAll(resp.Body)
-		fmt.Printf("Request Failed:\n%+v\n%+v\n", body, resp)
+		if resp != nil {
+			fmt.Printf("Request Failed:\n%+v\n", resp)
+			body, _ := ioutil.ReadAll(resp.Body)
+			fmt.Printf("%+v\n", body)
+		} else {
+			fmt.Printf("Request failed, response is nil")
+		}
 		panic(err)
 	}
 }

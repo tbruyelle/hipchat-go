@@ -153,8 +153,8 @@ func (r *RoomService) Update(id string, roomReq *UpdateRoomRequest) (*http.Respo
 // List all webhooks for a given room.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/get_all_webhooks
-func (r *RoomService) GetAllWebhooks(id string, roomReq *GetAllWebhooksRequest) (*WebhookList, *http.Response, error) {
-	req, err := r.client.NewRequest("GET", fmt.Sprintf("room/%s/webhook", id), roomReq)
+func (r *RoomService) GetAllWebhooks(id interface{}, roomReq *GetAllWebhooksRequest) (*WebhookList, *http.Response, error) {
+	req, err := r.client.NewRequest("GET", fmt.Sprintf("room/%v/webhook", id), roomReq)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -171,8 +171,8 @@ func (r *RoomService) GetAllWebhooks(id string, roomReq *GetAllWebhooksRequest) 
 // Delete a given webhook.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/delete_webhook
-func (r *RoomService) DeleteWebhook(id string, webhookId string) (*http.Response, error) {
-	req, err := r.client.NewRequest("DELETE", fmt.Sprintf("room/%s/webhook/%s", id, webhookId), nil)
+func (r *RoomService) DeleteWebhook(id interface{}, webhookId interface{}) (*http.Response, error) {
+	req, err := r.client.NewRequest("DELETE", fmt.Sprintf("room/%v/webhook/%v", id, webhookId), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -188,8 +188,8 @@ func (r *RoomService) DeleteWebhook(id string, webhookId string) (*http.Response
 // Create a new webhook.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/create_webhook
-func (r *RoomService) CreateWebhook(id string, roomReq *CreateWebhookRequest) (*Webhook, *http.Response, error) {
-	req, err := r.client.NewRequest("POST", fmt.Sprintf("room/%s/webhook", id), roomReq)
+func (r *RoomService) CreateWebhook(id interface{}, roomReq *CreateWebhookRequest) (*Webhook, *http.Response, error) {
+	req, err := r.client.NewRequest("POST", fmt.Sprintf("room/%v/webhook", id), roomReq)
 	if err != nil {
 		return nil, nil, err
 	}
