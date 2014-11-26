@@ -75,6 +75,34 @@ type NotificationRequest struct {
 	MessageFormat string `json:"message_format,omitempty"`
 }
 
+// HistoryRequest represents a HipChat room chat history request.
+type HistoryRequest struct {
+	Date       string `json:"date"`
+	Timezone   string `json:"timezone"`
+	StartIndex int    `json:"start-index"`
+	MaxResults int    `json:"max-results"`
+	Reverse    bool   `json:"reverse"`
+}
+
+// History represents a HipChat room chat history.
+type History struct {
+	Items      []Message `json:"items"`
+	StartIndex int       `json:"startIndex"`
+	MaxResults int       `json:"maxResults"`
+	Links      PageLinks `json:"links"`
+}
+
+// Message represents a HipChat message.
+type Message struct {
+	Date          string      `json:"date"`
+	From          interface{} `json:"from"` // string | obj <- weak
+	Id            string      `json:"id"`
+	Mentions      []User      `json:"mentions"`
+	Message       string      `json:"message"`
+	MessageFormat string      `json:"message_format"`
+	Type          string      `json:"type"`
+}
+
 // List returns all the rooms authorized.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/get_all_rooms
@@ -148,4 +176,21 @@ func (r *RoomService) Update(id string, roomReq *UpdateRoomRequest) (*http.Respo
 	}
 
 	return r.client.Do(req, nil)
+}
+
+// History fetches a room's chat history.
+//
+// HipChat API docs: https://www.hipchat.com/docs/apiv2/method/view_room_history
+func (r *RoomService) History(id string, roomReq *HistoryRequest) (*History, *http.Response, error) {
+	req, err := r.client.NewRequest("GET", fmt.Sprintf("room/%s/history", id), roomReq)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	h := new(History)
+	resp, err := r.client.Do(req, &h)
+	if err != nil {
+		return nil, resp, err
+	}
+	return h, resp, nil
 }

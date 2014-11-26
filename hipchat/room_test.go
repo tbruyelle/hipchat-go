@@ -149,3 +149,44 @@ func TestRoomUpdate(t *testing.T) {
 		t.Fatalf("Room.Update returns an error %v", err)
 	}
 }
+
+func TestRoomHistory(t *testing.T) {
+	setup()
+	defer teardown()
+
+	args := &HistoryRequest{}
+
+	mux.HandleFunc("/room/1/history", func(w http.ResponseWriter, r *http.Request) {
+		if m := "GET"; m != r.Method {
+			t.Errorf("Request method %s, want %s", r.Method, m)
+		}
+		fmt.Fprintf(w, `
+		{
+      "items": [
+          {
+              "date": "2014-11-23T21:23:49.807578+00:00",
+              "from": "Test Testerson",
+              "id": "f058e668-c9c0-4cd5-9ca5-e2c42b06f3ed",
+              "mentions": [],
+              "message": "Hey there!",
+              "message_format": "html",
+              "type": "notification"
+          }
+      ],
+      "links": {
+          "self": "https://api.hipchat.com/v2/room/1/history"
+      },
+      "maxResults": 100,
+      "startIndex": 0
+		}`)
+	})
+	want := &History{Items: []Message{Message{Date: "2014-11-23T21:23:49.807578+00:00", From: "Test Testerson", Id: "f058e668-c9c0-4cd5-9ca5-e2c42b06f3ed", Mentions: []User{}, Message: "Hey there!", MessageFormat: "html", Type: "notification"}}, StartIndex: 0, MaxResults: 100, Links: PageLinks{Links: Links{Self: "https://api.hipchat.com/v2/room/1/history"}}}
+
+	hist, _, err := client.Room.History("1", args)
+	if err != nil {
+		t.Fatalf("Room.History returns an error %v", err)
+	}
+	if !reflect.DeepEqual(want, hist) {
+		t.Errorf("Room.History returned %+v, want %+v", hist, want)
+	}
+}
