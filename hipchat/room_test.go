@@ -3,11 +3,11 @@ package hipchat
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
+	"os"
 	"reflect"
 	"testing"
-	"io/ioutil"
-	"os"
 )
 
 func TestRoomGet(t *testing.T) {
@@ -229,5 +229,53 @@ func TestRoomHistory(t *testing.T) {
 	}
 	if !reflect.DeepEqual(want, hist) {
 		t.Errorf("Room.History returned %+v, want %+v", hist, want)
+	}
+}
+
+func TestSetTopic(t *testing.T) {
+	setup()
+	defer teardown()
+
+	args := &SetTopicRequest{Topic: "t"}
+
+	mux.HandleFunc("/room/1/topic", func(w http.ResponseWriter, r *http.Request) {
+		if m := "PUT"; m != r.Method {
+			t.Errorf("Request method %s, want %s", r.Method, m)
+		}
+		v := new(SetTopicRequest)
+		json.NewDecoder(r.Body).Decode(v)
+
+		if !reflect.DeepEqual(v, args) {
+			t.Errorf("Request body %+v, want %+v", v, args)
+		}
+	})
+
+	_, err := client.Room.SetTopic("1", "t")
+	if err != nil {
+		t.Fatalf("Room.SetTopic returns an error %v", err)
+	}
+}
+
+func TestInvite(t *testing.T) {
+	setup()
+	defer teardown()
+
+	args := &InviteRequest{Reason: "r"}
+
+	mux.HandleFunc("/room/1/invite/user", func(w http.ResponseWriter, r *http.Request) {
+		if m := "POST"; m != r.Method {
+			t.Errorf("Request method %s, want %s", r.Method, m)
+		}
+		v := new(InviteRequest)
+		json.NewDecoder(r.Body).Decode(v)
+
+		if !reflect.DeepEqual(v, args) {
+			t.Errorf("Request body %+v, want %+v", v, args)
+		}
+	})
+
+	_, err := client.Room.Invite("1", "user", "r")
+	if err != nil {
+		t.Fatalf("Room.Invite returns an error %v", err)
 	}
 }
