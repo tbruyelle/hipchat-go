@@ -101,8 +101,9 @@ type Message struct {
 	Message       string      `json:"message"`
 	MessageFormat string      `json:"message_format"`
 	Type          string      `json:"type"`
+}
 
-// SetTopicRequest represents a hipchat update topic request 
+// SetTopicRequest represents a hipchat update topic request
 type SetTopicRequest struct {
 	Topic string `json:"topic"`
 }
@@ -202,6 +203,7 @@ func (r *RoomService) History(id string, roomReq *HistoryRequest) (*History, *ht
 		return nil, resp, err
 	}
 	return h, resp, nil
+}
 
 // Set Room topic.
 //
