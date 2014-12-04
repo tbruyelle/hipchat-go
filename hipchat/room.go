@@ -183,10 +183,6 @@ func (r *RoomService) Update(id string, roomReq *UpdateRoomRequest) (*http.Respo
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/view_room_history
 func (r *RoomService) History(id string, roomReq *HistoryRequest) (*History, *http.Response, error) {
 	req, err := r.client.NewRequest("GET", fmt.Sprintf("room/%s/history", id), roomReq)
-	if err != nil {
-		return nil, nil, err
-	}
-
 	h := new(History)
 	resp, err := r.client.Do(req, &h)
 	if err != nil {
