@@ -190,3 +190,51 @@ func TestRoomHistory(t *testing.T) {
 		t.Errorf("Room.History returned %+v, want %+v", hist, want)
 	}
 }
+
+func TestSetTopic(t *testing.T) {
+	setup()
+	defer teardown()
+
+	args := &SetTopicRequest{Topic: "n"}
+
+	mux.HandleFunc("/room/1/topic", func(w http.ResponseWriter, r *http.Request) {
+		if m := "PUT"; m != r.Method {
+			t.Errorf("Request method %s, want %s", r.Method, m)
+		}
+		v := new(SetTopicRequest)
+		json.NewDecoder(r.Body).Decode(v)
+
+		if !reflect.DeepEqual(v, args) {
+			t.Errorf("Request body %+v, want %+v", v, args)
+		}
+	})
+
+	_, err := client.Room.SetTopic("1", "n")
+	if err != nil {
+		t.Fatalf("Room.SetTopic returns an error %v", err)
+	}
+}
+
+func TestInvite(t *testing.T) {
+	setup()
+	defer teardown()
+
+	args := &InviteRequest{Reason: "n"}
+
+	mux.HandleFunc("/room/1/invite/user", func(w http.ResponseWriter, r *http.Request) {
+		if m := "POST"; m != r.Method {
+			t.Errorf("Request method %s, want %s", r.Method, m)
+		}
+		v := new(InviteRequest)
+		json.NewDecoder(r.Body).Decode(v)
+
+		if !reflect.DeepEqual(v, args) {
+			t.Errorf("Request body %+v, want %+v", v, args)
+		}
+	})
+
+	_, err := client.Room.Invite("1", "user", "n")
+	if err != nil {
+		t.Fatalf("Room.Invite returns an error %v", err)
+	}
+}
