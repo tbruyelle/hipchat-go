@@ -3,11 +3,19 @@ package hipchat
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
+	"mime"
 	"net/http"
 	"net/url"
+	"os/user"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
 const (
@@ -21,6 +29,7 @@ type Client struct {
 	client    *http.Client
 	// Room gives access to the /room part of the API.
 	Room *RoomService
+	User *UserService
 }
 
 // Links represents the HipChat default links.
@@ -55,6 +64,7 @@ func NewClient(authToken string) *Client {
 		client:    http.DefaultClient,
 	}
 	c.Room = &RoomService{client: c}
+	c.User = &UserService{client: c}
 	return c
 }
 
@@ -86,6 +96,78 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Requ
 	req.Header.Add("Authorization", "Bearer "+c.authToken)
 	req.Header.Add("Content-Type", "application/json")
 	return req, nil
+}
+
+// NewFileUploadRequest creates an API request to upload a file.
+// This method manually formats the request as multipart/related with a single part
+// of content-type application/json and a second part containing the file to be sent.
+// Relative URLs should always be specified without a preceding slash.
+func (c *Client) NewFileUploadRequest(method, urlStr string, v interface{}) (*http.Request, error) {
+	rel, err := url.Parse(urlStr)
+	if err != nil {
+		return nil, err
+	}
+
+	u := c.baseURL.ResolveReference(rel)
+
+	shareFileReq, ok := v.(*ShareFileRequest)
+	if !ok {
+		return nil, errors.New("ShareFileRequest corrupted")
+	}
+	path := shareFileReq.Path
+	message := shareFileReq.Message
+
+	// Resolve home path
+	if strings.HasPrefix(path, "~") {
+		usr, _ := user.Current()
+		path = strings.Replace(path, "~", usr.HomeDir, 1)
+	}
+
+	// Check if file exists
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return nil, err
+	}
+
+	// Read file and encode to base 64
+	file, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	b64 := base64.StdEncoding.EncodeToString(file)
+	contentType := mime.TypeByExtension(filepath.Ext(path))
+
+	// Set proper filename
+	filename := shareFileReq.Filename
+	if filename == "" {
+		filename = filepath.Base(path)
+	} else if filepath.Ext(filename) != filepath.Ext(path) {
+		filename = filepath.Base(filename) + filepath.Ext(path)
+	}
+
+	// Build request body
+	body := "--hipfileboundary\n" +
+		"Content-Type: application/json; charset=UTF-8\n" +
+		"Content-Disposition: attachment; name=\"metadata\"\n\n" +
+		"{\"message\": \"" + message + "\"}\n" +
+		"--hipfileboundary\n" +
+		"Content-Type: " + contentType + " charset=UTF-8\n" +
+		"Content-Transfer-Encoding: base64\n" +
+		"Content-Disposition: attachment; name=file; filename=" + filename + "\n\n" +
+		b64 + "\n" +
+		"--hipfileboundary\n"
+
+	b := &bytes.Buffer{}
+	b.Write([]byte(body))
+
+	req, err := http.NewRequest(method, u.String(), b)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Authorization", "Bearer " + c.authToken)
+	req.Header.Add("Content-Type", "multipart/related; boundary=hipfileboundary")
+
+	return req, err
 }
 
 // Do performs the request, the json received in the response is decoded

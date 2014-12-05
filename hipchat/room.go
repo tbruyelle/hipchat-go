@@ -75,6 +75,13 @@ type NotificationRequest struct {
 	MessageFormat string `json:"message_format,omitempty"`
 }
 
+// ShareFileRequest represents a HipChat room file share request.
+type ShareFileRequest struct {
+	Path     string `json:"path"`
+	Filename string `json:"filename,omitempty"`
+	Message  string `json:"message,omitempty"`
+}
+
 // HistoryRequest represents a HipChat room chat history request.
 type HistoryRequest struct {
 	Date       string `json:"date"`
@@ -142,6 +149,18 @@ func (r *RoomService) Get(id string) (*Room, *http.Response, error) {
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/send_room_notification
 func (r *RoomService) Notification(id string, notifReq *NotificationRequest) (*http.Response, error) {
 	req, err := r.client.NewRequest("POST", fmt.Sprintf("room/%s/notification", id), notifReq)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.client.Do(req, nil)
+}
+
+// ShareFile sends a file to the room specified by the id.
+//
+// HipChat API docs: https://www.hipchat.com/docs/apiv2/method/share_file_with_room
+func (r *RoomService) ShareFile(id string, shareFileReq *ShareFileRequest) (*http.Response, error) {
+	req, err := r.client.NewFileUploadRequest("POST", fmt.Sprintf("room/%s/share/file", id), shareFileReq)
 	if err != nil {
 		return nil, err
 	}
