@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/hipchat-go/hipchat"
+	"github.com/tbruyelle/hipchat-go/hipchat"
 )
 
 var (
@@ -15,7 +15,6 @@ var (
 	message  = flag.String("message", "", "The message")
 	filename = flag.String("filename", "", "The name of the file")
 )
-
 
 func main() {
 	flag.Parse()
