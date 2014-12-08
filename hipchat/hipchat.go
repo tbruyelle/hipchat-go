@@ -12,8 +12,8 @@ import (
 	"mime"
 	"net/http"
 	"net/url"
-	"os/user"
 	"os"
+	"os/user"
 	"path/filepath"
 	"strings"
 )
@@ -29,6 +29,7 @@ type Client struct {
 	client    *http.Client
 	// Room gives access to the /room part of the API.
 	Room *RoomService
+	// User gives access to the /user part of the API.
 	User *UserService
 }
 
@@ -164,7 +165,7 @@ func (c *Client) NewFileUploadRequest(method, urlStr string, v interface{}) (*ht
 		return nil, err
 	}
 
-	req.Header.Add("Authorization", "Bearer " + c.authToken)
+	req.Header.Add("Authorization", "Bearer "+c.authToken)
 	req.Header.Add("Content-Type", "multipart/related; boundary=hipfileboundary")
 
 	return req, err
