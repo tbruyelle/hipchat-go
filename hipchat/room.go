@@ -110,6 +110,16 @@ type Message struct {
 	Type          string      `json:"type"`
 }
 
+// SetTopicRequest represents a hipchat update topic request
+type SetTopicRequest struct {
+	Topic string `json:"topic"`
+}
+
+// InviteRequest represents a hipchat invite to room request
+type InviteRequest struct {
+	Reason string `json:"reason"`
+}
+
 // List returns all the rooms authorized.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/get_all_rooms
@@ -208,4 +218,32 @@ func (r *RoomService) History(id string, roomReq *HistoryRequest) (*History, *ht
 		return nil, resp, err
 	}
 	return h, resp, nil
+}
+
+// Set Room topic.
+//
+// HipChat API docs: https://www.hipchat.com/docs/apiv2/method/set_topic
+func (r *RoomService) SetTopic(id string, topic string) (*http.Response, error) {
+	topicReq := &SetTopicRequest{Topic: topic}
+
+	req, err := r.client.NewRequest("PUT", fmt.Sprintf("room/%s/topic", id), topicReq)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.client.Do(req, nil)
+}
+
+// Invite someone to the Room.
+//
+// HipChat API docs: https://www.hipchat.com/docs/apiv2/method/invite_user
+func (r *RoomService) Invite(room string, user string, reason string) (*http.Response, error) {
+	reasonReq := &InviteRequest{Reason: reason}
+
+	req, err := r.client.NewRequest("POST", fmt.Sprintf("room/%s/invite/%s", room, user), reasonReq)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.client.Do(req, nil)
 }
