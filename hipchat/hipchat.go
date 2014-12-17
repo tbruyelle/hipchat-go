@@ -25,7 +25,7 @@ const (
 // Client manages the communication with the HipChat API.
 type Client struct {
 	authToken string
-	baseURL   *url.URL
+	BaseURL   *url.URL
 	client    *http.Client
 	// Room gives access to the /room part of the API.
 	Room *RoomService
@@ -61,7 +61,7 @@ func NewClient(authToken string) *Client {
 
 	c := &Client{
 		authToken: authToken,
-		baseURL:   baseURL,
+		BaseURL:   baseURL,
 		client:    http.DefaultClient,
 	}
 	c.Room = &RoomService{client: c}
@@ -79,7 +79,7 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Requ
 		return nil, err
 	}
 
-	u := c.baseURL.ResolveReference(rel)
+	u := c.BaseURL.ResolveReference(rel)
 
 	buf := new(bytes.Buffer)
 	if body != nil {
@@ -109,7 +109,7 @@ func (c *Client) NewFileUploadRequest(method, urlStr string, v interface{}) (*ht
 		return nil, err
 	}
 
-	u := c.baseURL.ResolveReference(rel)
+	u := c.BaseURL.ResolveReference(rel)
 
 	shareFileReq, ok := v.(*ShareFileRequest)
 	if !ok {
