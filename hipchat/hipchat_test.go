@@ -28,7 +28,7 @@ func setup() {
 	// github client configured to use test server
 	client = NewClient("AuthToken")
 	url, _ := url.Parse(server.URL)
-	client.baseURL = url
+	client.BaseURL = url
 }
 
 // teardown closes the test HTTP server.
@@ -44,8 +44,8 @@ func TestNewClient(t *testing.T) {
 	if c.authToken != authToken {
 		t.Errorf("NewClient authToken %s, want %s", c.authToken, authToken)
 	}
-	if c.baseURL.String() != defaultBaseURL {
-		t.Errorf("NewClient baseURL %s, want %s", c.baseURL.String(), defaultBaseURL)
+	if c.BaseURL.String() != defaultBaseURL {
+		t.Errorf("NewClient BaseURL %s, want %s", c.BaseURL.String(), defaultBaseURL)
 	}
 }
 
