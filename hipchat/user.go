@@ -37,9 +37,6 @@ type UserService struct {
 	client *Client
 }
 
-// UserRequest represents a HipChat user request.
-type UserRequest struct{}
-
 // ShareFile sends a file to the user specified by the id.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/share_file_with_user
@@ -55,8 +52,8 @@ func (u *UserService) ShareFile(id string, shareFileReq *ShareFileRequest) (*htt
 // View fetches a user's details.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/view_user
-func (u *UserService) View(id string, userReq *UserRequest) (*User, *http.Response, error) {
-	req, err := u.client.NewRequest("GET", fmt.Sprintf("user/%s", id), userReq)
+func (u *UserService) View(id string) (*User, *http.Response, error) {
+	req, err := u.client.NewRequest("GET", fmt.Sprintf("user/%s", id), nil)
 
 	userDetails := new(User)
 	resp, err := u.client.Do(req, &userDetails)

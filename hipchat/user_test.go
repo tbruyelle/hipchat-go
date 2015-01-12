@@ -52,8 +52,6 @@ func TestUserView(t *testing.T) {
 	setup()
 	defer teardown()
 
-	args := &UserRequest{}
-
 	mux.HandleFunc("/user/@FirstL", func(w http.ResponseWriter, r *http.Request) {
 		if m := "GET"; m != r.Method {
 			t.Errorf("Request method %s, want %s", r.Method, m)
@@ -109,7 +107,7 @@ func TestUserView(t *testing.T) {
 		PhotoUrl:     "https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2014/Mar/02/hipchat-pidgin-theme-logo-571708621-0_avatar.png",
 		Links:        Links{Self: "https://api.hipchat.com/v2/user/1"}}
 
-	hist, _, err := client.User.View("@FirstL", args)
+	hist, _, err := client.User.View("@FirstL")
 	if err != nil {
 		t.Fatalf("User.View returns an error %v", err)
 	}
