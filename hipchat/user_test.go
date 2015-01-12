@@ -1,10 +1,12 @@
 package hipchat
 
 import (
-	"net/http"
-	"testing"
+	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
+	"reflect"
+	"testing"
 )
 
 func TestUserShareFile(t *testing.T) {
@@ -46,3 +48,70 @@ func TestUserShareFile(t *testing.T) {
 	}
 }
 
+func TestUserView(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/user/@FirstL", func(w http.ResponseWriter, r *http.Request) {
+		if m := "GET"; m != r.Method {
+			t.Errorf("Request method %s, want %s", r.Method, m)
+		}
+		fmt.Fprintf(w, `
+			{
+				"created": "2013-11-07T17:57:11+00:00",
+				"email": "user@example.com",
+				"group": {
+					"id": 1234,
+					"links": {
+						"self": "https://api.hipchat.com/v2/group/1234"
+					},
+					"name": "Example"
+				},
+				"id": 1,
+				"is_deleted": false,
+				"is_group_admin": true,
+				"is_guest": false,
+				"last_active": "1421029691",
+				"links": {
+					"self": "https://api.hipchat.com/v2/user/1"
+				},
+				"mention_name": "FirstL",
+				"name": "First Last",
+				"photo_url": "https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2014/Mar/02/hipchat-pidgin-theme-logo-571708621-0_avatar.png",
+				"presence": {
+						"client": {
+							"type": "http://hipchat.com/client/mac",
+							"version": "151"
+						},
+						"is_online": true,
+						"show": "chat"
+				},
+				"timezone": "America/New_York",
+				"title": "Test user",
+				"xmpp_jid": "1@chat.hipchat.com"
+			}`)
+	})
+	want := &User{XmppJid: "1@chat.hipchat.com",
+		IsDeleted:    false,
+		Name:         "First Last",
+		LastActive:   "1421029691",
+		Title:        "Test user",
+		Presence:     UserPresence{Show: "chat", IsOnline: true},
+		Created:      "2013-11-07T17:57:11+00:00",
+		ID:           1,
+		MentionName:  "FirstL",
+		IsGroupAdmin: true,
+		Timezone:     "America/New_York",
+		IsGuest:      false,
+		Email:        "user@example.com",
+		PhotoUrl:     "https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2014/Mar/02/hipchat-pidgin-theme-logo-571708621-0_avatar.png",
+		Links:        Links{Self: "https://api.hipchat.com/v2/user/1"}}
+
+	hist, _, err := client.User.View("@FirstL")
+	if err != nil {
+		t.Fatalf("User.View returns an error %v", err)
+	}
+	if !reflect.DeepEqual(want, hist) {
+		t.Errorf("User.View returned %+v, want %+v", hist, want)
+	}
+}

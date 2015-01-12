@@ -5,12 +5,31 @@ import (
 	"net/http"
 )
 
+// UserPresence represents the HipChat user's presence.
+type UserPresence struct {
+	Status   string `json:"status"`
+	Idle     int    `json:"idle"`
+	Show     string `json:"show"`
+	IsOnline bool   `json:"is_online"`
+}
+
 // User represents the HipChat user.
 type User struct {
-	ID          int    `json:"id"`
-	Name        string `json:"name"`
-	MentionName string `json:"mention_name"`
-	Links       Links  `json:"links"`
+	XmppJid      string       `json:"xmpp_jid"`
+	IsDeleted    bool         `json:"is_deleted"`
+	Name         string       `json:"name"`
+	LastActive   string       `json:"last_active"`
+	Title        string       `json:"title"`
+	Presence     UserPresence `json:"presence"`
+	Created      string       `json:"created"`
+	ID           int          `json:"id"`
+	MentionName  string       `json:"mention_name"`
+	IsGroupAdmin bool         `json:"is_group_admin"`
+	Timezone     string       `json:"timezone"`
+	IsGuest      bool         `json:"is_guest"`
+	Email        string       `json:"email"`
+	PhotoUrl     string       `json:"photo_url"`
+	Links        Links        `json:"links"`
 }
 
 // UserService gives access to the user related methods of the API.
@@ -30,3 +49,16 @@ func (u *UserService) ShareFile(id string, shareFileReq *ShareFileRequest) (*htt
 	return u.client.Do(req, nil)
 }
 
+// View fetches a user's details.
+//
+// HipChat API docs: https://www.hipchat.com/docs/apiv2/method/view_user
+func (u *UserService) View(id string) (*User, *http.Response, error) {
+	req, err := u.client.NewRequest("GET", fmt.Sprintf("user/%s", id), nil)
+
+	userDetails := new(User)
+	resp, err := u.client.Do(req, &userDetails)
+	if err != nil {
+		return nil, resp, err
+	}
+	return userDetails, resp, nil
+}
