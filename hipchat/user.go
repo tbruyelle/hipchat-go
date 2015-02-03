@@ -32,6 +32,14 @@ type User struct {
 	Links        Links        `json:"links"`
 }
 
+// Users represents the API return of a collection of Users plus metadata
+type Users struct {
+	Items      []*User `json:"items"`
+	StartIndex int     `json:"start_index"`
+	MaxResults int     `json:"max_results"`
+	Links      Links   `json:"links"`
+}
+
 // UserService gives access to the user related methods of the API.
 type UserService struct {
 	client *Client
@@ -61,4 +69,21 @@ func (u *UserService) View(id string) (*User, *http.Response, error) {
 		return nil, resp, err
 	}
 	return userDetails, resp, nil
+}
+
+// GetAll lists all users in the group
+//
+// HipChat API docs: https://www.hipchat.com/docs/apiv2/method/get_all_users
+func (u *UserService) GetAll(start, max int, guests, deleted bool) ([]*User, *http.Response, error) {
+	if max == 0 {
+		max = 100
+	}
+	req, err := u.client.NewRequest("GET", fmt.Sprintf("user?start-index=%d&max-results=%d&include-guests=%v&include-deleted=%v", start, max, guests, deleted), nil)
+
+	users := new(Users)
+	resp, err := u.client.Do(req, &users)
+	if err != nil {
+		return nil, resp, err
+	}
+	return users.Items, resp, nil
 }
