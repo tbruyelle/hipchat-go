@@ -115,3 +115,48 @@ func TestUserView(t *testing.T) {
 		t.Errorf("User.View returned %+v, want %+v", hist, want)
 	}
 }
+
+func TestUserGetAll(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/user", func(w http.ResponseWriter, r *http.Request) {
+		if m := "GET"; m != r.Method {
+			t.Errorf("Request method %s, want %s", r.Method, m)
+		}
+		fmt.Fprintf(w, `
+            {
+              "items": [
+                {
+                  "id": 1,
+                  "links": {
+                    "self": "https:\/\/api.hipchat.com\/v2\/user\/1"
+                  },
+                  "mention_name": "FirstL",
+                  "name": "First Last"
+                }
+              ],
+              "startIndex": 0,
+              "maxResults": 100,
+              "links": {
+                "self": "https:\/\/api.hipchat.com\/v2\/user"
+              }
+            }`)
+	})
+	want := []*User{
+		{
+			ID:          1,
+			Name:        "First Last",
+			MentionName: "FirstL",
+			Links:       Links{Self: "https://api.hipchat.com/v2/user/1"},
+		},
+	}
+
+	hist, _, err := client.User.GetAll(0, 100, false, false)
+	if err != nil {
+		t.Fatalf("User.GetAll returns an error %v", err)
+	}
+	if !reflect.DeepEqual(want, hist) {
+		t.Errorf("User.GetAll returned %+v, want %+v", hist, want)
+	}
+}
