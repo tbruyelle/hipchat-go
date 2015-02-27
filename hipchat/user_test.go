@@ -107,12 +107,12 @@ func TestUserView(t *testing.T) {
 		PhotoUrl:     "https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2014/Mar/02/hipchat-pidgin-theme-logo-571708621-0_avatar.png",
 		Links:        Links{Self: "https://api.hipchat.com/v2/user/1"}}
 
-	hist, _, err := client.User.View("@FirstL")
+	user, _, err := client.User.View("@FirstL")
 	if err != nil {
 		t.Fatalf("User.View returns an error %v", err)
 	}
-	if !reflect.DeepEqual(want, hist) {
-		t.Errorf("User.View returned %+v, want %+v", hist, want)
+	if !reflect.DeepEqual(want, user) {
+		t.Errorf("User.View returned %+v, want %+v", user, want)
 	}
 }
 
@@ -152,11 +152,11 @@ func TestUserList(t *testing.T) {
 		},
 	}
 
-	hist, _, err := client.User.List(0, 100, false, false)
+	users, _, err := client.User.List(0, 100, false, false)
 	if err != nil {
-		t.Fatalf("User.GetAll returns an error %v", err)
+		t.Fatalf("User.List returned an error %v", err)
 	}
-	if !reflect.DeepEqual(want, hist) {
-		t.Errorf("User.GetAll returned %+v, want %+v", hist, want)
+	if !reflect.DeepEqual(want, users) {
+		t.Errorf("User.List returned %+v, want %+v", users, want)
 	}
 }
