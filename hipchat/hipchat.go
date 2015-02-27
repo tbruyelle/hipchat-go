@@ -31,6 +31,8 @@ type Client struct {
 	Room *RoomService
 	// User gives access to the /user part of the API.
 	User *UserService
+	// Emoticon gives access to the /emoticon part of the API.
+	Emoticon *EmoticonService
 }
 
 // Links represents the HipChat default links.
@@ -66,6 +68,7 @@ func NewClient(authToken string) *Client {
 	}
 	c.Room = &RoomService{client: c}
 	c.User = &UserService{client: c}
+	c.Emoticon = &EmoticonService{client: c}
 	return c
 }
 
