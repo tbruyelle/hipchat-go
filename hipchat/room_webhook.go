@@ -31,7 +31,7 @@ type WebhookList struct {
 
 // Request Types
 
-type GetAllWebhooksRequest struct {
+type ListWebhooksRequest struct {
 	MaxResults int `json:"max-results"`
 	StartIndex int `json:"start-index"`
 }
@@ -43,10 +43,10 @@ type CreateWebhookRequest struct {
 	URL     string `json:"url"`
 }
 
-// List all webhooks for a given room.
+// ListWebhooks returns all the webhooks for a given room.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/get_all_webhooks
-func (r *RoomService) GetAllWebhooks(id interface{}, roomReq *GetAllWebhooksRequest) (*WebhookList, *http.Response, error) {
+func (r *RoomService) ListWebhooks(id interface{}, roomReq *ListWebhooksRequest) (*WebhookList, *http.Response, error) {
 	req, err := r.client.NewRequest("GET", fmt.Sprintf("room/%v/webhook", id), roomReq)
 	if err != nil {
 		return nil, nil, err
@@ -60,7 +60,7 @@ func (r *RoomService) GetAllWebhooks(id interface{}, roomReq *GetAllWebhooksRequ
 	return whList, resp, nil
 }
 
-// Delete a given webhook.
+// DeleteWebhook removes the given webhook.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/delete_webhook
 func (r *RoomService) DeleteWebhook(id interface{}, webhookId interface{}) (*http.Response, error) {
@@ -77,7 +77,7 @@ func (r *RoomService) DeleteWebhook(id interface{}, webhookId interface{}) (*htt
 	return resp, nil
 }
 
-// Create a new webhook.
+// CreateWebhook creates a new webhook.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/create_webhook
 func (r *RoomService) CreateWebhook(id interface{}, roomReq *CreateWebhookRequest) (*Webhook, *http.Response, error) {

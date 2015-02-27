@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestWebhookGet(t *testing.T) {
+func TestWebhookList(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -52,14 +52,14 @@ func TestWebhookGet(t *testing.T) {
 		Links:      PageLinks{Links: Links{Self: "s"}, Prev: "a", Next: "b"},
 	}
 
-	reqParams := &GetAllWebhooksRequest{}
+	reqParams := &ListWebhooksRequest{}
 
-	actual, _, err := client.Room.GetAllWebhooks("1", reqParams)
+	actual, _, err := client.Room.ListWebhooks("1", reqParams)
 	if err != nil {
-		t.Fatalf("Room.GetAllWebhooks returns an error %v", err)
+		t.Fatalf("Room.ListWebhooks returns an error %v", err)
 	}
 	if !reflect.DeepEqual(want, actual) {
-		t.Errorf("Room.GetAllWebhooks returned %+v, want %+v", actual, want)
+		t.Errorf("Room.ListWebhooks returned %+v, want %+v", actual, want)
 	}
 }
 
