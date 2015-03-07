@@ -53,10 +53,10 @@ type ID struct {
 	ID string `json:"id"`
 }
 
-// NewClient returns a new HipChat API client. You must provide a valid
-// AuthToken retrieved from your HipChat account.
-func NewClient(authToken string) *Client {
-	baseURL, err := url.Parse(defaultBaseURL)
+// NewClientForServer returns a new HipChat API client. You must provide a valid
+// AuthToken retrieved from your HipChat account and server base url.
+func NewClientForServer(authToken string, serverBaseUrl string) *Client {
+	baseURL, err := url.Parse(serverBaseUrl)
 	if err != nil {
 		panic(err)
 	}
@@ -70,6 +70,12 @@ func NewClient(authToken string) *Client {
 	c.User = &UserService{client: c}
 	c.Emoticon = &EmoticonService{client: c}
 	return c
+}
+
+// NewClient returns a new HipChat API client. You must provide a valid
+// AuthToken retrieved from your HipChat.
+func NewClient(authToken string) *Client {
+	return NewClientForServer(authToken, defaultBaseURL)
 }
 
 // NewRequest creates an API request. This method can be used to performs

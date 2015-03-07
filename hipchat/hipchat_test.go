@@ -36,6 +36,19 @@ func teardown() {
 	server.Close()
 }
 
+func TestNewClientForServer(t *testing.T) {
+	authToken := "AuthToken"
+	serverBaseUrl := "https://example.com/v2/"
+
+	c := NewClientForServer(authToken, serverBaseUrl)
+
+	if c.authToken != authToken {
+		t.Errorf("NewClient authToken %s, want %s", c.authToken, authToken)
+	}
+	if c.BaseURL.String() != serverBaseUrl {
+		t.Errorf("NewClient BaseURL %s, want %s", c.BaseURL.String(), serverBaseUrl)
+	}
+}
 func TestNewClient(t *testing.T) {
 	authToken := "AuthToken"
 
