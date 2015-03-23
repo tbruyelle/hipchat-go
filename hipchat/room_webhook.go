@@ -5,6 +5,8 @@ package hipchat
 import (
 	"fmt"
 	"net/http"
+	"net/url"
+	"strconv"
 )
 
 // Response Types
@@ -47,7 +49,20 @@ type CreateWebhookRequest struct {
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/get_all_webhooks
 func (r *RoomService) ListWebhooks(id interface{}, roomReq *ListWebhooksRequest) (*WebhookList, *http.Response, error) {
-	req, err := r.client.NewRequest("GET", fmt.Sprintf("room/%v/webhook", id), roomReq)
+	u := fmt.Sprintf("room/%v/webhook", id)
+	if roomReq != nil {
+		p := url.Values{}
+		if roomReq.MaxResults != 0 {
+			p.Add("max-results", strconv.FormatInt(int64(roomReq.MaxResults), 10))
+		}
+		if roomReq.StartIndex != 0 {
+			p.Add("start-index", strconv.FormatInt(int64(roomReq.StartIndex), 10))
+		}
+		if len(p) > 0 {
+			u += "?" + p.Encode()
+		}
+	}
+	req, err := r.client.NewRequest("GET", u, nil)
 	if err != nil {
 		return nil, nil, err
 	}

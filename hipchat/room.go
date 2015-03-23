@@ -3,6 +3,8 @@ package hipchat
 import (
 	"fmt"
 	"net/http"
+	"net/url"
+	"strconv"
 )
 
 // RoomService gives access to the room related methods of the API.
@@ -211,7 +213,28 @@ func (r *RoomService) Update(id string, roomReq *UpdateRoomRequest) (*http.Respo
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/view_room_history
 func (r *RoomService) History(id string, roomReq *HistoryRequest) (*History, *http.Response, error) {
-	req, err := r.client.NewRequest("GET", fmt.Sprintf("room/%s/history", id), roomReq)
+	u := fmt.Sprintf("room/%s/history", id)
+	// Form query parameters
+	if roomReq != nil {
+		p := url.Values{}
+		if roomReq.Date != "" {
+			p.Add("date", roomReq.Date)
+		}
+		if roomReq.Timezone != "" {
+			p.Add("timezone", roomReq.Timezone)
+		}
+		if roomReq.StartIndex != 0 {
+			p.Add("start-index", strconv.FormatInt(int64(roomReq.StartIndex), 10))
+		}
+		if roomReq.MaxResults != 0 {
+			p.Add("max-results", strconv.FormatInt(int64(roomReq.MaxResults), 10))
+		}
+		// There's no way to tell whether caller set a boolean or not. We have to always set
+		// it.
+		p.Add("reverse", strconv.FormatBool(roomReq.Reverse))
+		u += "?" + p.Encode()
+	}
+	req, err := r.client.NewRequest("GET", u, nil)
 	h := new(History)
 	resp, err := r.client.Do(req, &h)
 	if err != nil {
