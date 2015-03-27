@@ -197,6 +197,18 @@ func (r *RoomService) Create(roomReq *CreateRoomRequest) (*Room, *http.Response,
 	return room, resp, nil
 }
 
+// Delete deletes an existing room.
+//
+// HipChat API docs: https://www.hipchat.com/docs/apiv2/method/delete_room
+func (r *RoomService) Delete(id string) (*http.Response, error) {
+	req, err := r.client.NewRequest("DELETE", fmt.Sprintf("room/%s", id), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.client.Do(req, nil)
+}
+
 // Update updates an existing room.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/update_room

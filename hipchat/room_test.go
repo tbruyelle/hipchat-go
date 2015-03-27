@@ -167,6 +167,22 @@ func TestRoomCreate(t *testing.T) {
 	}
 }
 
+func TestRoomDelete(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/room/1", func(w http.ResponseWriter, r *http.Request) {
+		if m := "DELETE"; m != r.Method {
+			t.Errorf("Request method %s, want %s", r.Method, m)
+		}
+	})
+
+	_, err := client.Room.Delete("1")
+	if err != nil {
+		t.Fatalf("Room.Delete returns an error %v", err)
+	}
+}
+
 func TestRoomUpdate(t *testing.T) {
 	setup()
 	defer teardown()
