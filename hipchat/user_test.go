@@ -1,6 +1,7 @@
 package hipchat
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -45,6 +46,31 @@ func TestUserShareFile(t *testing.T) {
 	_, err = client.User.ShareFile("1", args)
 	if err != nil {
 		t.Fatalf("User.ShareFile returns an error %v", err)
+	}
+}
+
+func TestUserMessage(t *testing.T) {
+	setup()
+	defer teardown()
+
+	args := &MessageRequest{Message: "m", MessageFormat: "text"}
+
+	mux.HandleFunc("/user/@FirstL/message", func(w http.ResponseWriter, r *http.Request) {
+		if m := "POST"; m != r.Method {
+			t.Errorf("Request method %s, want %s", r.Method, m)
+		}
+		v := new(MessageRequest)
+		json.NewDecoder(r.Body).Decode(v)
+
+		if !reflect.DeepEqual(v, args) {
+			t.Errorf("Request body %+v, want %+v", v, args)
+		}
+		w.WriteHeader(http.StatusNoContent)
+	})
+
+	_, err := client.User.Message("@FirstL", args)
+	if err != nil {
+		t.Fatalf("User.Message returns an error %v", err)
 	}
 }
 

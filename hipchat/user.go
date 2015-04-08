@@ -5,6 +5,13 @@ import (
 	"net/http"
 )
 
+// MessageRequest represents a HipChat private message to user.
+type MessageRequest struct {
+	Message       string `json:"message,omitempty"`
+	Notify        bool   `json:"notify,omitempty"`
+	MessageFormat string `json:"message_format,omitempty"`
+}
+
 // UserPresence represents the HipChat user's presence.
 type UserPresence struct {
 	Status   string `json:"status"`
@@ -69,6 +76,18 @@ func (u *UserService) View(id string) (*User, *http.Response, error) {
 		return nil, resp, err
 	}
 	return userDetails, resp, nil
+}
+
+// Message sends a private message to the user specified by the id.
+//
+// HipChat API docs: https://www.hipchat.com/docs/apiv2/method/private_message_user
+func (r *UserService) Message(id string, msgReq *MessageRequest) (*http.Response, error) {
+	req, err := r.client.NewRequest("POST", fmt.Sprintf("user/%s/message", id), msgReq)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.client.Do(req, nil)
 }
 
 // List returns all users in the group.
