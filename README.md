@@ -33,7 +33,7 @@ for _, room := range rooms.Items {
 }
 ```
 
-### Testing
+### Testing the auth token
 
 HipChat allows to [test the auth token](https://www.hipchat.com/docs/apiv2/auth#auth_test) by adding the `auth_test=true` param, into any API endpoints.
 
