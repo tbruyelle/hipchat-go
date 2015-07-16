@@ -15,6 +15,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
@@ -53,6 +54,15 @@ type ID struct {
 	ID string `json:"id"`
 }
 
+// AuthTest can be set to true to test an auth token.
+//
+// HipChat API docs: https://www.hipchat.com/docs/apiv2/auth#auth_test
+var AuthTest = false
+
+// AuthTestResponse will contain the server response of any
+// API calls if AuthTest=true.
+var AuthTestResponse = map[string]interface{}{}
+
 // NewClient returns a new HipChat API client. You must provide a valid
 // AuthToken retrieved from your HipChat account.
 func NewClient(authToken string) *Client {
@@ -80,6 +90,13 @@ func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Requ
 	rel, err := url.Parse(urlStr)
 	if err != nil {
 		return nil, err
+	}
+
+	if AuthTest {
+		// Add the auth_test param
+		values := rel.Query()
+		values.Add("auth_test", strconv.FormatBool(AuthTest))
+		rel.RawQuery = values.Encode()
 	}
 
 	u := c.BaseURL.ResolveReference(rel)
@@ -186,15 +203,21 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 
 	defer resp.Body.Close()
 
-	if c := resp.StatusCode; c < 200 || c > 299 {
-		return resp, fmt.Errorf("Server returns status %d", c)
-	}
+	if AuthTest {
+		// If AuthTest is enabled, the reponse won't be the
+		// one defined in the API endpoint.
+		err = json.NewDecoder(resp.Body).Decode(&AuthTestResponse)
+	} else {
+		if c := resp.StatusCode; c < 200 || c > 299 {
+			return resp, fmt.Errorf("Server returns status %d", c)
+		}
 
-	if v != nil {
-		if w, ok := v.(io.Writer); ok {
-			io.Copy(w, resp.Body)
-		} else {
-			err = json.NewDecoder(resp.Body).Decode(v)
+		if v != nil {
+			if w, ok := v.(io.Writer); ok {
+				io.Copy(w, resp.Body)
+			} else {
+				err = json.NewDecoder(resp.Body).Decode(v)
+			}
 		}
 	}
 	return resp, err

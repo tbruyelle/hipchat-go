@@ -73,6 +73,19 @@ func TestNewRequest(t *testing.T) {
 	}
 }
 
+func TestNewRequest_AuthTestEnabled(t *testing.T) {
+	AuthTest = true
+	defer func() { AuthTest = false }()
+	c := NewClient("AuthToken")
+
+	inURL, outURL := "foo", defaultBaseURL+"foo?auth_test=true"
+	r, _ := c.NewRequest("GET", inURL, nil)
+
+	if r.URL.String() != outURL {
+		t.Errorf("NewRequest URL %s, want %s", r.URL.String(), outURL)
+	}
+}
+
 func TestDo(t *testing.T) {
 	setup()
 	defer teardown()
@@ -97,5 +110,33 @@ func TestDo(t *testing.T) {
 	want := &foo{Bar: 1}
 	if !reflect.DeepEqual(body, want) {
 		t.Errorf("Response body = %v, want %v", body, want)
+	}
+}
+
+func TestDo_AuthTestEnabled(t *testing.T) {
+	AuthTest = true
+	defer func() { AuthTest = false }()
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if m := "GET"; m != r.Method {
+			t.Errorf("Request method = %v, want %v", r.Method, m)
+		}
+		if r.URL.Query().Get("auth_test") == "true" {
+			fmt.Fprintf(w, `{"success":{ "code": 202, "type": "Accepted", "message": "This auth_token has access to use this method." }}`)
+		} else {
+			fmt.Fprintf(w, `{"Bar":1}`)
+		}
+	})
+	req, _ := client.NewRequest("GET", "/", nil)
+
+	_, err := client.Do(req, nil)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := AuthTestResponse["success"]; !ok {
+		t.Errorf("Response body = %v, want succeed", AuthTestResponse)
 	}
 }
