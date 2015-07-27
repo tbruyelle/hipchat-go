@@ -74,3 +74,35 @@ func (c *Client) GetAccessToken(credentials ClientCredentials, scopes []string) 
 
 	return &token, resp, nil
 }
+
+// Scope is a string value representing access in the Hipchat API
+type Scope string
+
+const (
+	// ScopeAdminGroup - Perform group administrative tasks
+	ScopeAdminGroup Scope = "admin_group"
+
+	// ScopeAdminRoom - Perform room administrative tasks
+	ScopeAdminRoom = "admin_room"
+
+	// ScopeImportData - Import users, rooms, and chat history. Only available for select add-ons.
+	ScopeImportData = "import_data"
+
+	// ScopeManageRooms - Create, update, and remove rooms
+	ScopeManageRooms = "manage_rooms"
+
+	// ScopeSendMessage - Send private one-on-one messages
+	ScopeSendMessage = "send_message"
+
+	// ScopeSendNotification - Send room notifications
+	ScopeSendNotification = "send_notification"
+
+	// ScopeViewGroup - View users, rooms, and other group information
+	ScopeViewGroup = "view_group"
+
+	// ScopeViewMessages - View messages from chat rooms and private chats you have access to
+	ScopeViewMessages = "view_messages"
+
+	// ScopeViewRoom - View room information and participants, but not history
+	ScopeViewRoom = "view_room"
+)

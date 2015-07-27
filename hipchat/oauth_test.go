@@ -57,7 +57,7 @@ func TestGetAccessToken(t *testing.T) {
 
 	credentials := ClientCredentials{ClientID: clientID, ClientSecret: clientSecret}
 
-	token, _, err := client.GetAccessToken(credentials, []string{"send_notification", "view_room"})
+	token, _, err := client.GetAccessToken(credentials, []string{ScopeSendNotification, ScopeViewRoom})
 	if err != nil {
 		t.Fatalf("Client.GetAccessToken returns an error %v", err)
 	}
