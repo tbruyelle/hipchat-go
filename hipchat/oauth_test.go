@@ -31,8 +31,8 @@ func TestGetAccessToken(t *testing.T) {
 			t.Errorf("grant_type should be 'client_credentials'")
 		}
 
-		if r.FormValue("scopes") != "send_notification view_room" {
-			t.Errorf("scopes should be 'send_notification view_room'")
+		if r.FormValue("scope") != "send_notification view_room" {
+			t.Errorf("scope should be 'send_notification view_room'")
 		}
 
 		fmt.Fprintf(w, `
@@ -57,7 +57,7 @@ func TestGetAccessToken(t *testing.T) {
 
 	credentials := ClientCredentials{ClientID: clientID, ClientSecret: clientSecret}
 
-	token, _, err := client.GetAccessToken(credentials, []string{ScopeSendNotification, ScopeViewRoom})
+	token, _, err := client.GenerateToken(credentials, []string{ScopeSendNotification, ScopeViewRoom})
 	if err != nil {
 		t.Fatalf("Client.GetAccessToken returns an error %v", err)
 	}

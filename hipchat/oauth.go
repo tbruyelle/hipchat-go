@@ -30,8 +30,10 @@ func (t *OAuthAccessToken) CreateClient() *Client {
 	return NewClient(t.AccessToken)
 }
 
-// GetAccessToken returns back an access token for a given integration's client ID and client secret
-func (c *Client) GetAccessToken(credentials ClientCredentials, scopes []string) (*OAuthAccessToken, *http.Response, error) {
+// GenerateToken returns back an access token for a given integration's client ID and client secret
+//
+//  HipChat API documentation: https://www.hipchat.com/docs/apiv2/method/generate_token
+func (c *Client) GenerateToken(credentials ClientCredentials, scopes []string) (*OAuthAccessToken, *http.Response, error) {
 	rel, err := url.Parse("oauth/token")
 
 	if err != nil {
@@ -40,7 +42,8 @@ func (c *Client) GetAccessToken(credentials ClientCredentials, scopes []string) 
 
 	u := c.BaseURL.ResolveReference(rel)
 
-	params := url.Values{"grant_type": {"client_credentials"}, "scopes": {strings.Join(scopes, " ")}}
+	params := url.Values{"grant_type": {"client_credentials"},
+		"scope": {strings.Join(scopes, " ")}}
 	req, err := http.NewRequest("POST", u.String(), strings.NewReader(params.Encode()))
 
 	if err != nil {
@@ -75,12 +78,9 @@ func (c *Client) GetAccessToken(credentials ClientCredentials, scopes []string) 
 	return &token, resp, nil
 }
 
-// Scope is a string value representing access in the Hipchat API
-type Scope string
-
 const (
 	// ScopeAdminGroup - Perform group administrative tasks
-	ScopeAdminGroup Scope = "admin_group"
+	ScopeAdminGroup = "admin_group"
 
 	// ScopeAdminRoom - Perform room administrative tasks
 	ScopeAdminRoom = "admin_room"
