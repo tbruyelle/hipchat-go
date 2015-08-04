@@ -85,6 +85,13 @@ type ShareFileRequest struct {
 }
 
 // HistoryRequest represents a HipChat room chat history request.
+type LatestHistoryRequest struct {
+	MaxResults int    `json:"max-results"`
+	Timezone   string `json:"timezone"`
+	NotBefore  string `json:"not-before"`
+}
+
+// HistoryRequest represents a HipChat room chat history request.
 type HistoryRequest struct {
 	Date       string `json:"date"`
 	Timezone   string `json:"timezone"`
@@ -244,6 +251,34 @@ func (r *RoomService) History(id string, roomReq *HistoryRequest) (*History, *ht
 		// There's no way to tell whether caller set a boolean or not. We have to always set
 		// it.
 		p.Add("reverse", strconv.FormatBool(roomReq.Reverse))
+		u += "?" + p.Encode()
+	}
+	req, err := r.client.NewRequest("GET", u, nil)
+	h := new(History)
+	resp, err := r.client.Do(req, &h)
+	if err != nil {
+		return nil, resp, err
+	}
+	return h, resp, nil
+}
+
+// HipChat API docs: https://www.hipchat.com/docs/apiv2/method/view_recent_room_history
+func (r *RoomService) Latest(id string, roomReq *LatestHistoryRequest) (*History, *http.Response, error) {
+	u := fmt.Sprintf("room/%s/history/latest", id)
+	// Form query parameters
+	if roomReq != nil {
+		p := url.Values{}
+
+		if roomReq.MaxResults != 0 {
+			p.Add("max-results", strconv.FormatInt(int64(roomReq.MaxResults), 10))
+		}
+		if roomReq.Timezone != "" {
+			p.Add("timezone", roomReq.Timezone)
+		}
+		if roomReq.NotBefore != "" {
+			p.Add("not-before", roomReq.NotBefore)
+		}
+
 		u += "?" + p.Encode()
 	}
 	req, err := r.client.NewRequest("GET", u, nil)
