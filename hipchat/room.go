@@ -84,6 +84,13 @@ type ShareFileRequest struct {
 	Message  string `json:"message,omitempty"`
 }
 
+// LatestHistoryRequest represents a HipChat room chat latest history request.
+type LatestHistoryRequest struct {
+	MaxResults int    `json:"max-results"`
+	Timezone   string `json:"timezone"`
+	NotBefore  string `json:"not-before"`
+}
+
 // HistoryRequest represents a HipChat room chat history request.
 type HistoryRequest struct {
 	Date       string `json:"date"`
@@ -255,7 +262,37 @@ func (r *RoomService) History(id string, roomReq *HistoryRequest) (*History, *ht
 	return h, resp, nil
 }
 
-// Set Room topic.
+// Latest fetches a room's chat history.
+//
+// HipChat API docs: https://www.hipchat.com/docs/apiv2/method/view_recent_room_history
+func (r *RoomService) Latest(id string, roomReq *LatestHistoryRequest) (*History, *http.Response, error) {
+	u := fmt.Sprintf("room/%s/history/latest", id)
+	// Form query parameters
+	if roomReq != nil {
+		p := url.Values{}
+
+		if roomReq.MaxResults != 0 {
+			p.Add("max-results", strconv.FormatInt(int64(roomReq.MaxResults), 10))
+		}
+		if roomReq.Timezone != "" {
+			p.Add("timezone", roomReq.Timezone)
+		}
+		if roomReq.NotBefore != "" {
+			p.Add("not-before", roomReq.NotBefore)
+		}
+
+		u += "?" + p.Encode()
+	}
+	req, err := r.client.NewRequest("GET", u, nil)
+	h := new(History)
+	resp, err := r.client.Do(req, &h)
+	if err != nil {
+		return nil, resp, err
+	}
+	return h, resp, nil
+}
+
+// SetTopic sets Room topic.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/set_topic
 func (r *RoomService) SetTopic(id string, topic string) (*http.Response, error) {
