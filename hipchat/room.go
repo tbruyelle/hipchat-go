@@ -84,7 +84,7 @@ type ShareFileRequest struct {
 	Message  string `json:"message,omitempty"`
 }
 
-// HistoryRequest represents a HipChat room chat history request.
+// LatestHistoryRequest represents a HipChat room chat latest history request.
 type LatestHistoryRequest struct {
 	MaxResults int    `json:"max-results"`
 	Timezone   string `json:"timezone"`
@@ -262,6 +262,8 @@ func (r *RoomService) History(id string, roomReq *HistoryRequest) (*History, *ht
 	return h, resp, nil
 }
 
+// Latest fetches a room's chat history.
+//
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/view_recent_room_history
 func (r *RoomService) Latest(id string, roomReq *LatestHistoryRequest) (*History, *http.Response, error) {
 	u := fmt.Sprintf("room/%s/history/latest", id)
@@ -290,7 +292,7 @@ func (r *RoomService) Latest(id string, roomReq *LatestHistoryRequest) (*History
 	return h, resp, nil
 }
 
-// Set Room topic.
+// SetTopic sets Room topic.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/set_topic
 func (r *RoomService) SetTopic(id string, topic string) (*http.Response, error) {
