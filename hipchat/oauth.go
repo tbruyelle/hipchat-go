@@ -74,6 +74,7 @@ func (c *Client) GenerateToken(credentials ClientCredentials, scopes []string) (
 
 	var token OAuthAccessToken
 	json.Unmarshal(content, &token)
+	c.authToken = token.AccessToken
 
 	return &token, resp, nil
 }
