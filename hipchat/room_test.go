@@ -34,7 +34,7 @@ func TestRoomGet(t *testing.T) {
 		ID:           1,
 		Name:         "n",
 		Links:        RoomLinks{Links: Links{Self: "s"}},
-		Participants: []User{User{Name: "n1"}, User{Name: "n2"}},
+		Participants: []User{{Name: "n1"}, {Name: "n2"}},
 		Owner:        User{Name: "n1"},
 	}
 
@@ -63,7 +63,7 @@ func TestRoomList(t *testing.T) {
 			"links":{"Self":"s"}
 		}`)
 	})
-	want := &Rooms{Items: []Room{Room{ID: 1, Name: "n"}}, StartIndex: 1, MaxResults: 1, Links: PageLinks{Links: Links{Self: "s"}}}
+	want := &Rooms{Items: []Room{{ID: 1, Name: "n"}}, StartIndex: 1, MaxResults: 1, Links: PageLinks{Links: Links{Self: "s"}}}
 
 	rooms, _, err := client.Room.List()
 	if err != nil {
@@ -237,7 +237,7 @@ func TestRoomHistory(t *testing.T) {
       "startIndex": 0
 		}`)
 	})
-	want := &History{Items: []Message{Message{Date: "2014-11-23T21:23:49.807578+00:00", From: "Test Testerson", Id: "f058e668-c9c0-4cd5-9ca5-e2c42b06f3ed", Mentions: []User{}, Message: "Hey there!", MessageFormat: "html", Type: "notification"}}, StartIndex: 0, MaxResults: 100, Links: PageLinks{Links: Links{Self: "https://api.hipchat.com/v2/room/1/history"}}}
+	want := &History{Items: []Message{{Date: "2014-11-23T21:23:49.807578+00:00", From: "Test Testerson", Id: "f058e668-c9c0-4cd5-9ca5-e2c42b06f3ed", Mentions: []User{}, Message: "Hey there!", MessageFormat: "html", Type: "notification"}}, StartIndex: 0, MaxResults: 100, Links: PageLinks{Links: Links{Self: "https://api.hipchat.com/v2/room/1/history"}}}
 
 	hist, _, err := client.Room.History("1", args)
 	if err != nil {
@@ -277,7 +277,7 @@ func TestRoomLatest(t *testing.T) {
       "maxResults": 100
 		}`)
 	})
-	want := &History{Items: []Message{Message{Date: "2014-11-23T21:23:49.807578+00:00", From: "Test Testerson", Id: "f058e668-c9c0-4cd5-9ca5-e2c42b06f3ed", Mentions: []User{}, Message: "Hey there!", MessageFormat: "html", Type: "notification"}}, MaxResults: 100, Links: PageLinks{Links: Links{Self: "https://api.hipchat.com/v2/room/1/history/latest"}}}
+	want := &History{Items: []Message{{Date: "2014-11-23T21:23:49.807578+00:00", From: "Test Testerson", Id: "f058e668-c9c0-4cd5-9ca5-e2c42b06f3ed", Mentions: []User{}, Message: "Hey there!", MessageFormat: "html", Type: "notification"}}, MaxResults: 100, Links: PageLinks{Links: Links{Self: "https://api.hipchat.com/v2/room/1/history/latest"}}}
 
 	hist, _, err := client.Room.Latest("1", args)
 	if err != nil {

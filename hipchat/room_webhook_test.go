@@ -30,7 +30,7 @@ func TestWebhookList(t *testing.T) {
 
 	want := &WebhookList{
 		Webhooks: []Webhook{
-			Webhook{
+			{
 				Name:         "a",
 				Pattern:      "a",
 				Event:        "message_received",
@@ -38,7 +38,7 @@ func TestWebhookList(t *testing.T) {
 				ID:           1,
 				WebhookLinks: WebhookLinks{Links: Links{Self: "s"}},
 			},
-			Webhook{
+			{
 				Name:         "b",
 				Pattern:      "b",
 				Event:        "message_received",

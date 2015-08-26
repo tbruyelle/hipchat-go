@@ -29,7 +29,7 @@ func TestEmoticonList(t *testing.T) {
 		}`)
 	})
 	want := &Emoticons{
-		Items:      []Emoticon{Emoticon{ID: 1, Url: "u", Shortcut: "s", Links: Links{Self: "s"}}},
+		Items:      []Emoticon{{ID: 1, Url: "u", Shortcut: "s", Links: Links{Self: "s"}}},
 		StartIndex: 1,
 		MaxResults: 1,
 		Links:      PageLinks{Links: Links{Self: "s"}, Prev: "p", Next: "n"},
