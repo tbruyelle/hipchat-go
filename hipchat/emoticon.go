@@ -31,7 +31,7 @@ type Emoticon struct {
 // HipChat api docs : https://www.hipchat.com/docs/apiv2/method/get_all_emoticons
 func (e *EmoticonService) List(start, max int, typee string) (*Emoticons, *http.Response, error) {
 	req, err := e.client.NewRequest("GET",
-		fmt.Sprintf("emoticon?start-index=%d&max-results=%d&type=%s", start, max, typee), nil)
+		fmt.Sprintf("emoticon?start-index=%d&max-results=%d&type=%s", start, max, typee), nil, nil)
 	if err != nil {
 		return nil, nil, err
 	}

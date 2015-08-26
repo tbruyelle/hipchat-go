@@ -178,7 +178,9 @@ func TestUserList(t *testing.T) {
 		},
 	}
 
-	users, _, err := client.User.List(0, 100, false, false)
+	opt := &UserListOptions{ListOptions: ListOptions{StartIndex: 0, MaxResults: 100}}
+
+	users, _, err := client.User.List(opt)
 	if err != nil {
 		t.Fatalf("User.List returned an error %v", err)
 	}

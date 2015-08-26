@@ -62,7 +62,7 @@ func (r *RoomService) ListWebhooks(id interface{}, roomReq *ListWebhooksRequest)
 			u += "?" + p.Encode()
 		}
 	}
-	req, err := r.client.NewRequest("GET", u, nil)
+	req, err := r.client.NewRequest("GET", u, nil, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -79,7 +79,7 @@ func (r *RoomService) ListWebhooks(id interface{}, roomReq *ListWebhooksRequest)
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/delete_webhook
 func (r *RoomService) DeleteWebhook(id interface{}, webhookID interface{}) (*http.Response, error) {
-	req, err := r.client.NewRequest("DELETE", fmt.Sprintf("room/%v/webhook/%v", id, webhookID), nil)
+	req, err := r.client.NewRequest("DELETE", fmt.Sprintf("room/%v/webhook/%v", id, webhookID), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func (r *RoomService) DeleteWebhook(id interface{}, webhookID interface{}) (*htt
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/create_webhook
 func (r *RoomService) CreateWebhook(id interface{}, roomReq *CreateWebhookRequest) (*Webhook, *http.Response, error) {
-	req, err := r.client.NewRequest("POST", fmt.Sprintf("room/%v/webhook", id), roomReq)
+	req, err := r.client.NewRequest("POST", fmt.Sprintf("room/%v/webhook", id), nil, roomReq)
 	if err != nil {
 		return nil, nil, err
 	}

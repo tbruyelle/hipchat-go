@@ -133,7 +133,7 @@ type InviteRequest struct {
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/get_all_rooms
 func (r *RoomService) List() (*Rooms, *http.Response, error) {
-	req, err := r.client.NewRequest("GET", "room", nil)
+	req, err := r.client.NewRequest("GET", "room", nil, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -150,7 +150,7 @@ func (r *RoomService) List() (*Rooms, *http.Response, error) {
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/get_room
 func (r *RoomService) Get(id string) (*Room, *http.Response, error) {
-	req, err := r.client.NewRequest("GET", fmt.Sprintf("room/%s", id), nil)
+	req, err := r.client.NewRequest("GET", fmt.Sprintf("room/%s", id), nil, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -167,7 +167,7 @@ func (r *RoomService) Get(id string) (*Room, *http.Response, error) {
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/send_room_notification
 func (r *RoomService) Notification(id string, notifReq *NotificationRequest) (*http.Response, error) {
-	req, err := r.client.NewRequest("POST", fmt.Sprintf("room/%s/notification", id), notifReq)
+	req, err := r.client.NewRequest("POST", fmt.Sprintf("room/%s/notification", id), nil, notifReq)
 	if err != nil {
 		return nil, err
 	}
@@ -191,7 +191,7 @@ func (r *RoomService) ShareFile(id string, shareFileReq *ShareFileRequest) (*htt
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/create_room
 func (r *RoomService) Create(roomReq *CreateRoomRequest) (*Room, *http.Response, error) {
-	req, err := r.client.NewRequest("POST", "room", roomReq)
+	req, err := r.client.NewRequest("POST", "room", nil, roomReq)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -208,7 +208,7 @@ func (r *RoomService) Create(roomReq *CreateRoomRequest) (*Room, *http.Response,
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/delete_room
 func (r *RoomService) Delete(id string) (*http.Response, error) {
-	req, err := r.client.NewRequest("DELETE", fmt.Sprintf("room/%s", id), nil)
+	req, err := r.client.NewRequest("DELETE", fmt.Sprintf("room/%s", id), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -220,7 +220,7 @@ func (r *RoomService) Delete(id string) (*http.Response, error) {
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/update_room
 func (r *RoomService) Update(id string, roomReq *UpdateRoomRequest) (*http.Response, error) {
-	req, err := r.client.NewRequest("PUT", fmt.Sprintf("room/%s", id), roomReq)
+	req, err := r.client.NewRequest("PUT", fmt.Sprintf("room/%s", id), nil, roomReq)
 	if err != nil {
 		return nil, err
 	}
@@ -253,7 +253,7 @@ func (r *RoomService) History(id string, roomReq *HistoryRequest) (*History, *ht
 		p.Add("reverse", strconv.FormatBool(roomReq.Reverse))
 		u += "?" + p.Encode()
 	}
-	req, err := r.client.NewRequest("GET", u, nil)
+	req, err := r.client.NewRequest("GET", u, nil, nil)
 	h := new(History)
 	resp, err := r.client.Do(req, &h)
 	if err != nil {
@@ -283,7 +283,7 @@ func (r *RoomService) Latest(id string, roomReq *LatestHistoryRequest) (*History
 
 		u += "?" + p.Encode()
 	}
-	req, err := r.client.NewRequest("GET", u, nil)
+	req, err := r.client.NewRequest("GET", u, nil, nil)
 	h := new(History)
 	resp, err := r.client.Do(req, &h)
 	if err != nil {
@@ -298,7 +298,7 @@ func (r *RoomService) Latest(id string, roomReq *LatestHistoryRequest) (*History
 func (r *RoomService) SetTopic(id string, topic string) (*http.Response, error) {
 	topicReq := &SetTopicRequest{Topic: topic}
 
-	req, err := r.client.NewRequest("PUT", fmt.Sprintf("room/%s/topic", id), topicReq)
+	req, err := r.client.NewRequest("PUT", fmt.Sprintf("room/%s/topic", id), nil, topicReq)
 	if err != nil {
 		return nil, err
 	}
@@ -312,7 +312,7 @@ func (r *RoomService) SetTopic(id string, topic string) (*http.Response, error) 
 func (r *RoomService) Invite(room string, user string, reason string) (*http.Response, error) {
 	reasonReq := &InviteRequest{Reason: reason}
 
-	req, err := r.client.NewRequest("POST", fmt.Sprintf("room/%s/invite/%s", room, user), reasonReq)
+	req, err := r.client.NewRequest("POST", fmt.Sprintf("room/%s/invite/%s", room, user), nil, reasonReq)
 	if err != nil {
 		return nil, err
 	}

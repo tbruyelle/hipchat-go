@@ -52,9 +52,10 @@ func TestNewClient(t *testing.T) {
 func TestNewRequest(t *testing.T) {
 	c := NewClient("AuthToken")
 
-	inURL, outURL := "foo", defaultBaseURL+"foo"
+	inURL, outURL := "foo", defaultBaseURL+"foo?max-results=100&start-index=1"
+	opt := &ListOptions{StartIndex: 1, MaxResults: 100}
 	inBody, outBody := &NotificationRequest{Message: "Hello"}, `{"message":"Hello"}`+"\n"
-	r, _ := c.NewRequest("GET", inURL, inBody)
+	r, _ := c.NewRequest("GET", inURL, opt, inBody)
 
 	if r.URL.String() != outURL {
 		t.Errorf("NewRequest URL %s, want %s", r.URL.String(), outURL)
@@ -79,7 +80,7 @@ func TestNewRequest_AuthTestEnabled(t *testing.T) {
 	c := NewClient("AuthToken")
 
 	inURL, outURL := "foo", defaultBaseURL+"foo?auth_test=true"
-	r, _ := c.NewRequest("GET", inURL, nil)
+	r, _ := c.NewRequest("GET", inURL, nil, nil)
 
 	if r.URL.String() != outURL {
 		t.Errorf("NewRequest URL %s, want %s", r.URL.String(), outURL)
@@ -99,7 +100,7 @@ func TestDo(t *testing.T) {
 		}
 		fmt.Fprintf(w, `{"Bar":1}`)
 	})
-	req, _ := client.NewRequest("GET", "/", nil)
+	req, _ := client.NewRequest("GET", "/", nil, nil)
 	body := new(foo)
 
 	_, err := client.Do(req, body)
@@ -129,7 +130,7 @@ func TestDo_AuthTestEnabled(t *testing.T) {
 			fmt.Fprintf(w, `{"Bar":1}`)
 		}
 	})
-	req, _ := client.NewRequest("GET", "/", nil)
+	req, _ := client.NewRequest("GET", "/", nil, nil)
 
 	_, err := client.Do(req, nil)
 

@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/google/go-querystring/query"
 	"io"
 	"io/ioutil"
 	"mime"
@@ -15,6 +16,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"reflect"
 	"strconv"
 	"strings"
 )
@@ -54,6 +56,15 @@ type ID struct {
 	ID string `json:"id"`
 }
 
+// ListOptions  specifies the optional parameters to various List methods that
+// support pagination.
+type ListOptions struct {
+	// For paginated results, represents the first page to display.
+	StartIndex int `url:"start-index,omitempty"`
+	// For paginated results, reprensents the number of items per page.
+	MaxResults int `url:"max-results,omitempty"`
+}
+
 // AuthTest can be set to true to test an auth token.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/auth#auth_test
@@ -86,8 +97,8 @@ func NewClient(authToken string) *Client {
 // API request not implemented in this library. Otherwise it should not be
 // be used directly.
 // Relative URLs should always be specified without a preceding slash.
-func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Request, error) {
-	rel, err := url.Parse(urlStr)
+func (c *Client) NewRequest(method, urlStr string, opt interface{}, body interface{}) (*http.Request, error) {
+	rel, err := addOptions(urlStr, opt)
 	if err != nil {
 		return nil, err
 	}
@@ -221,4 +232,30 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 		}
 	}
 	return resp, err
+}
+
+// addOptions adds the parameters in opt as URL query parameters to s.  opt
+// must be a struct whose fields may contain "url" tags.
+func addOptions(s string, opt interface{}) (*url.URL, error) {
+	u, err := url.Parse(s)
+	if err != nil {
+		return nil, err
+	}
+	if opt == nil {
+		return u, nil
+	}
+
+	v := reflect.ValueOf(opt)
+	if v.Kind() == reflect.Ptr && v.IsNil() {
+		// No query string to add
+		return u, nil
+	}
+
+	qs, err := query.Values(opt)
+	if err != nil {
+		return nil, err
+	}
+
+	u.RawQuery = qs.Encode()
+	return u, nil
 }
