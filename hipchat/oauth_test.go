@@ -68,24 +68,3 @@ func TestGenerateToken(t *testing.T) {
 		t.Errorf("Client.authToken = %s, want %s", client.authToken, want.AccessToken)
 	}
 }
-
-func TestCreateClientFromAccessToken(t *testing.T) {
-	token := OAuthAccessToken{
-		AccessToken: "q0M8p3UrBL96uHb79x4qdR2r6oEnCeajcg123456",
-		ExpiresIn:   3599,
-		GroupID:     123456,
-		GroupName:   "TestGroup",
-		Scope:       "send_notification view_room",
-		TokenType:   "bearer",
-	}
-
-	client := token.CreateClient()
-
-	if client.authToken != token.AccessToken {
-		t.Fatalf(
-			"Client auth token does not match access token: %v != %v",
-			client.authToken,
-			token.AccessToken,
-		)
-	}
-}
