@@ -33,8 +33,8 @@ type WebhookList struct {
 
 // ListWebhooksRequest represents options for ListWebhooks method.
 type ListWebhooksRequest struct {
-	MaxResults int `json:"max-results"`
-	StartIndex int `json:"start-index"`
+	MaxResults int
+	StartIndex int
 }
 
 // CreateWebhookRequest represents the body of the CreateWebhook method.

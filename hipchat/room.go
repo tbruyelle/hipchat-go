@@ -86,18 +86,18 @@ type ShareFileRequest struct {
 
 // LatestHistoryRequest represents a HipChat room chat latest history request.
 type LatestHistoryRequest struct {
-	MaxResults int    `json:"max-results"`
-	Timezone   string `json:"timezone"`
-	NotBefore  string `json:"not-before"`
+	MaxResults int
+	Timezone   string
+	NotBefore  string
 }
 
 // HistoryRequest represents a HipChat room chat history request.
 type HistoryRequest struct {
-	Date       string `json:"date"`
-	Timezone   string `json:"timezone"`
-	StartIndex int    `json:"start-index"`
-	MaxResults int    `json:"max-results"`
-	Reverse    bool   `json:"reverse"`
+	Date       string
+	Timezone   string
+	StartIndex int
+	MaxResults int
+	Reverse    bool
 }
 
 // History represents a HipChat room chat history.
