@@ -12,15 +12,12 @@ func TestEmoticonList(t *testing.T) {
 	defer teardown()
 
 	mux.HandleFunc("/emoticon", func(w http.ResponseWriter, r *http.Request) {
-		if m := "GET"; m != r.Method {
-			t.Errorf("Request method %s, want %s", r.Method, m)
-		}
-		params := map[string]string{"start-index": "0", "max-results": "100", "type": "all"}
-		for k, v := range params {
-			if v != r.FormValue(k) {
-				t.Errorf("Request query params %s=%s, want %s", k, r.FormValue(k), v)
-			}
-		}
+		testMethod(t, r, "GET")
+		testFormValues(t, r, values{
+			"start-index": "1",
+			"max-results": "100",
+			"type":        "type",
+		})
 		fmt.Fprintf(w, `{
 			"items": [{"id":1, "url":"u", "shortcut":"s", "links":{"self":"s"}}],
 			"startIndex": 1,
@@ -35,7 +32,8 @@ func TestEmoticonList(t *testing.T) {
 		Links:      PageLinks{Links: Links{Self: "s"}, Prev: "p", Next: "n"},
 	}
 
-	emos, _, err := client.Emoticon.List(0, 100, "all")
+	opt := &EmoticonsListOptions{ListOptions{1, 100}, "type"}
+	emos, _, err := client.Emoticon.List(opt)
 	if err != nil {
 		t.Fatalf("Emoticon.List returned an error %v", err)
 	}

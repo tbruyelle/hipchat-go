@@ -5,8 +5,6 @@ package hipchat
 import (
 	"fmt"
 	"net/http"
-	"net/url"
-	"strconv"
 )
 
 // Response Types
@@ -31,10 +29,9 @@ type WebhookList struct {
 
 // Request Types
 
-// ListWebhooksRequest represents options for ListWebhooks method.
-type ListWebhooksRequest struct {
-	MaxResults int
-	StartIndex int
+// ListWebhooksOptions represents options for ListWebhooks method.
+type ListWebhooksOptions struct {
+	ListOptions
 }
 
 // CreateWebhookRequest represents the body of the CreateWebhook method.
@@ -48,21 +45,9 @@ type CreateWebhookRequest struct {
 // ListWebhooks returns all the webhooks for a given room.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/get_all_webhooks
-func (r *RoomService) ListWebhooks(id interface{}, roomReq *ListWebhooksRequest) (*WebhookList, *http.Response, error) {
+func (r *RoomService) ListWebhooks(id interface{}, opt *ListWebhooksOptions) (*WebhookList, *http.Response, error) {
 	u := fmt.Sprintf("room/%v/webhook", id)
-	if roomReq != nil {
-		p := url.Values{}
-		if roomReq.MaxResults != 0 {
-			p.Add("max-results", strconv.FormatInt(int64(roomReq.MaxResults), 10))
-		}
-		if roomReq.StartIndex != 0 {
-			p.Add("start-index", strconv.FormatInt(int64(roomReq.StartIndex), 10))
-		}
-		if len(p) > 0 {
-			u += "?" + p.Encode()
-		}
-	}
-	req, err := r.client.NewRequest("GET", u, nil)
+	req, err := r.client.NewRequest("GET", u, opt, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -79,7 +64,7 @@ func (r *RoomService) ListWebhooks(id interface{}, roomReq *ListWebhooksRequest)
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/delete_webhook
 func (r *RoomService) DeleteWebhook(id interface{}, webhookID interface{}) (*http.Response, error) {
-	req, err := r.client.NewRequest("DELETE", fmt.Sprintf("room/%v/webhook/%v", id, webhookID), nil)
+	req, err := r.client.NewRequest("DELETE", fmt.Sprintf("room/%v/webhook/%v", id, webhookID), nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +81,7 @@ func (r *RoomService) DeleteWebhook(id interface{}, webhookID interface{}) (*htt
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/create_webhook
 func (r *RoomService) CreateWebhook(id interface{}, roomReq *CreateWebhookRequest) (*Webhook, *http.Response, error) {
-	req, err := r.client.NewRequest("POST", fmt.Sprintf("room/%v/webhook", id), roomReq)
+	req, err := r.client.NewRequest("POST", fmt.Sprintf("room/%v/webhook", id), nil, roomReq)
 	if err != nil {
 		return nil, nil, err
 	}

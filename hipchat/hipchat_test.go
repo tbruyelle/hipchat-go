@@ -36,6 +36,32 @@ func teardown() {
 	server.Close()
 }
 
+func testMethod(t *testing.T, r *http.Request, want string) {
+	if got := r.Method; got != want {
+		t.Errorf("Request method: %v, want %v", got, want)
+	}
+}
+
+type values map[string]string
+
+func testFormValues(t *testing.T, r *http.Request, values values) {
+	want := url.Values{}
+	for k, v := range values {
+		want.Add(k, v)
+	}
+
+	r.ParseForm()
+	if got := r.Form; !reflect.DeepEqual(got, want) {
+		t.Errorf("Request parameters: %v, want %v", got, want)
+	}
+}
+
+func testHeader(t *testing.T, r *http.Request, header string, want string) {
+	if got := r.Header.Get(header); got != want {
+		t.Errorf("Header.Get(%q) returned %s, want %s", header, got, want)
+	}
+}
+
 func TestNewClient(t *testing.T) {
 	authToken := "AuthToken"
 
@@ -52,9 +78,10 @@ func TestNewClient(t *testing.T) {
 func TestNewRequest(t *testing.T) {
 	c := NewClient("AuthToken")
 
-	inURL, outURL := "foo", defaultBaseURL+"foo"
+	inURL, outURL := "foo", defaultBaseURL+"foo?max-results=100&start-index=1"
+	opt := &ListOptions{StartIndex: 1, MaxResults: 100}
 	inBody, outBody := &NotificationRequest{Message: "Hello"}, `{"message":"Hello"}`+"\n"
-	r, _ := c.NewRequest("GET", inURL, inBody)
+	r, _ := c.NewRequest("GET", inURL, opt, inBody)
 
 	if r.URL.String() != outURL {
 		t.Errorf("NewRequest URL %s, want %s", r.URL.String(), outURL)
@@ -79,7 +106,7 @@ func TestNewRequest_AuthTestEnabled(t *testing.T) {
 	c := NewClient("AuthToken")
 
 	inURL, outURL := "foo", defaultBaseURL+"foo?auth_test=true"
-	r, _ := c.NewRequest("GET", inURL, nil)
+	r, _ := c.NewRequest("GET", inURL, nil, nil)
 
 	if r.URL.String() != outURL {
 		t.Errorf("NewRequest URL %s, want %s", r.URL.String(), outURL)
@@ -99,7 +126,7 @@ func TestDo(t *testing.T) {
 		}
 		fmt.Fprintf(w, `{"Bar":1}`)
 	})
-	req, _ := client.NewRequest("GET", "/", nil)
+	req, _ := client.NewRequest("GET", "/", nil, nil)
 	body := new(foo)
 
 	_, err := client.Do(req, body)
@@ -129,7 +156,7 @@ func TestDo_AuthTestEnabled(t *testing.T) {
 			fmt.Fprintf(w, `{"Bar":1}`)
 		}
 	})
-	req, _ := client.NewRequest("GET", "/", nil)
+	req, _ := client.NewRequest("GET", "/", nil, nil)
 
 	_, err := client.Do(req, nil)
 
