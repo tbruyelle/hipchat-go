@@ -41,22 +41,22 @@ func main() {
 			for _, room := range rooms.Items {
 				fmt.Printf("%-25v%10v\n", room.Name, room.ID)
 
-				hooks, resp, err := c.Room.GetAllWebhooks(room.ID, nil)
+				hooks, resp, err := c.Room.ListWebhooks(room.ID, nil)
 				handleRequestError(resp, err)
 
 				for _, webhook := range hooks.Webhooks {
-					fmt.Printf("  %v %v\t%v\t%v\t%v\n", webhook.Name, webhook.ID, webhook.Event, webhook.URL, webhook.WebhookLinks.Links.Self)
+					fmt.Printf("  %v %v\t%v\t%v\t%v\n", webhook.Name, webhook.ID, webhook.Event, webhook.URL, webhook.Links.Self)
 				}
 
 				fmt.Println("---")
 			}
 		} else {
 			// If room is given, just get the webhooks for that room
-			hooks, resp, err := c.Room.GetAllWebhooks(*roomId, nil)
+			hooks, resp, err := c.Room.ListWebhooks(*roomId, nil)
 			handleRequestError(resp, err)
 
 			for _, webhook := range hooks.Webhooks {
-				fmt.Printf("  %v %v\t%v\t%v\t%v\n", webhook.Name, webhook.ID, webhook.Event, webhook.URL, webhook.WebhookLinks.Links.Self)
+				fmt.Printf("  %v %v\t%v\t%v\t%v\n", webhook.Name, webhook.ID, webhook.Event, webhook.URL, webhook.Links.Self)
 			}
 		}
 	} else if *action == "create" {
@@ -73,7 +73,7 @@ func main() {
 			URL:     *url,
 		})
 		handleRequestError(resp, err)
-		fmt.Printf("%v\t%v\t%v\t%v\n", webhook.Name, webhook.Event, webhook.URL, webhook.WebhookLinks.Links.Self)
+		fmt.Printf("%v\t%v\t%v\t%v\n", webhook.Name, webhook.Event, webhook.URL, webhook.Links.Self)
 	} else if *action == "delete" {
 		if *roomId == "" {
 			fmt.Println("roomId is required for webhook deletion")

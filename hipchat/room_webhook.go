@@ -11,19 +11,17 @@ import (
 
 // Response Types
 
-type WebhookLinks struct {
-	Links
-}
-
+// Webhook represents a HipChat webhook.
 type Webhook struct {
-	WebhookLinks WebhookLinks `json:"links"`
-	Name         string       `json:"name"`
-	Event        string       `json:"event"`
-	Pattern      string       `json:"pattern"`
-	URL          string       `json:"url"`
-	ID           int          `json:"id,omitempty"`
+	Links   Links  `json:"links"`
+	Name    string `json:"name"`
+	Event   string `json:"event"`
+	Pattern string `json:"pattern"`
+	URL     string `json:"url"`
+	ID      int    `json:"id,omitempty"`
 }
 
+// WebhookList represents a HipChat webhook list.
 type WebhookList struct {
 	Webhooks   []Webhook `json:"items"`
 	StartIndex int       `json:"startIndex"`
@@ -33,11 +31,13 @@ type WebhookList struct {
 
 // Request Types
 
+// ListWebhooksRequest represents options for ListWebhooks method.
 type ListWebhooksRequest struct {
 	MaxResults int `json:"max-results"`
 	StartIndex int `json:"start-index"`
 }
 
+// CreateWebhookRequest represents the body of the CreateWebhook method.
 type CreateWebhookRequest struct {
 	Name    string `json:"name"`
 	Event   string `json:"event"`
@@ -78,8 +78,8 @@ func (r *RoomService) ListWebhooks(id interface{}, roomReq *ListWebhooksRequest)
 // DeleteWebhook removes the given webhook.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/delete_webhook
-func (r *RoomService) DeleteWebhook(id interface{}, webhookId interface{}) (*http.Response, error) {
-	req, err := r.client.NewRequest("DELETE", fmt.Sprintf("room/%v/webhook/%v", id, webhookId), nil)
+func (r *RoomService) DeleteWebhook(id interface{}, webhookID interface{}) (*http.Response, error) {
+	req, err := r.client.NewRequest("DELETE", fmt.Sprintf("room/%v/webhook/%v", id, webhookID), nil)
 	if err != nil {
 		return nil, err
 	}
