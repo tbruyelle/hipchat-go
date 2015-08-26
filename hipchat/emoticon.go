@@ -21,7 +21,7 @@ type Emoticons struct {
 // Emoticon represents a hipchat emoticon.
 type Emoticon struct {
 	ID       int    `json:"id"`
-	Url      string `json:"url"`
+	URL      string `json:"url"`
 	Links    Links  `json:"links"`
 	Shortcut string `json:"shortcut"`
 }
@@ -29,9 +29,9 @@ type Emoticon struct {
 // List returns the list of all the emoticons
 //
 // HipChat api docs : https://www.hipchat.com/docs/apiv2/method/get_all_emoticons
-func (e *EmoticonService) List(start, max int, type_ string) (*Emoticons, *http.Response, error) {
+func (e *EmoticonService) List(start, max int, typee string) (*Emoticons, *http.Response, error) {
 	req, err := e.client.NewRequest("GET",
-		fmt.Sprintf("emoticon?start-index=%d&max-results=%d&type=%s", start, max, type_), nil)
+		fmt.Sprintf("emoticon?start-index=%d&max-results=%d&type=%s", start, max, typee), nil)
 	if err != nil {
 		return nil, nil, err
 	}

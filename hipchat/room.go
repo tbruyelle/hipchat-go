@@ -112,7 +112,7 @@ type History struct {
 type Message struct {
 	Date          string      `json:"date"`
 	From          interface{} `json:"from"` // string | obj <- weak
-	Id            string      `json:"id"`
+	ID            string      `json:"id"`
 	Mentions      []User      `json:"mentions"`
 	Message       string      `json:"message"`
 	MessageFormat string      `json:"message_format"`

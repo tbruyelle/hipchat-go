@@ -130,7 +130,7 @@ func TestUserView(t *testing.T) {
 		Timezone:     "America/New_York",
 		IsGuest:      false,
 		Email:        "user@example.com",
-		PhotoUrl:     "https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2014/Mar/02/hipchat-pidgin-theme-logo-571708621-0_avatar.png",
+		PhotoURL:     "https://bitbucket-assetroot.s3.amazonaws.com/c/photos/2014/Mar/02/hipchat-pidgin-theme-logo-571708621-0_avatar.png",
 		Links:        Links{Self: "https://api.hipchat.com/v2/user/1"}}
 
 	user, _, err := client.User.View("@FirstL")

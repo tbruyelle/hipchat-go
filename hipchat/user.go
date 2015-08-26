@@ -35,7 +35,7 @@ type User struct {
 	Timezone     string       `json:"timezone"`
 	IsGuest      bool         `json:"is_guest"`
 	Email        string       `json:"email"`
-	PhotoUrl     string       `json:"photo_url"`
+	PhotoURL     string       `json:"photo_url"`
 	Links        Links        `json:"links"`
 }
 
@@ -81,13 +81,13 @@ func (u *UserService) View(id string) (*User, *http.Response, error) {
 // Message sends a private message to the user specified by the id.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/private_message_user
-func (r *UserService) Message(id string, msgReq *MessageRequest) (*http.Response, error) {
-	req, err := r.client.NewRequest("POST", fmt.Sprintf("user/%s/message", id), msgReq)
+func (u *UserService) Message(id string, msgReq *MessageRequest) (*http.Response, error) {
+	req, err := u.client.NewRequest("POST", fmt.Sprintf("user/%s/message", id), msgReq)
 	if err != nil {
 		return nil, err
 	}
 
-	return r.client.Do(req, nil)
+	return u.client.Do(req, nil)
 }
 
 // List returns all users in the group.
