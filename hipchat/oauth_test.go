@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestGetAccessToken(t *testing.T) {
+func TestGenerateToken(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -37,7 +37,7 @@ func TestGetAccessToken(t *testing.T) {
 
 		fmt.Fprintf(w, `
 		{
-            "access_token": "q0M8p3UrBL96uHb79x4qdR2r6oEnCeajcg123456",
+            "access_token": "GeneratedAuthToken",
             "expires_in": 3599,
             "group_id": 123456,
             "group_name": "TestGroup",
@@ -47,7 +47,7 @@ func TestGetAccessToken(t *testing.T) {
         `)
 	})
 	want := &OAuthAccessToken{
-		AccessToken: "q0M8p3UrBL96uHb79x4qdR2r6oEnCeajcg123456",
+		AccessToken: "GeneratedAuthToken",
 		ExpiresIn:   3599,
 		GroupID:     123456,
 		GroupName:   "TestGroup",
@@ -63,6 +63,9 @@ func TestGetAccessToken(t *testing.T) {
 	}
 	if !reflect.DeepEqual(want, token) {
 		t.Errorf("Client.GetAccessToken returned %+v, want %+v", token, want)
+	}
+	if client.authToken != want.AccessToken {
+		t.Errorf("Client.authToken = %s, want %s", client.authToken, want.AccessToken)
 	}
 }
 
