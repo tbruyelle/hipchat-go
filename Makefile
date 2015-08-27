@@ -1,6 +1,8 @@
 TEST?=./hipchat
 VETARGS?=-asmdecl -atomic -bool -buildtags -copylocks -methods -nilfunc -printf -rangeloops -shift -structtags -unsafeptr
 
+all: test testrace vet
+
 default: test
 
 # test runs the unit tests and vets the code
