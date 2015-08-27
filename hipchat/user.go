@@ -94,9 +94,9 @@ func (u *UserService) Message(id string, msgReq *MessageRequest) (*http.Response
 type UserListOptions struct {
 	ListOptions
 	// Include active guest users in response.
-	IncludeGuests bool `url:"include-guests:omitempty"`
+	IncludeGuests bool `url:"include-guests,omitempty"`
 	// Include deleted users in response.
-	IncludeDeleted bool `url:"include-deleted:omitempty"`
+	IncludeDeleted bool `url:"include-deleted,omitempty"`
 }
 
 // List returns all users in the group.

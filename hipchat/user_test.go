@@ -30,9 +30,7 @@ func TestUserShareFile(t *testing.T) {
 		"--hipfileboundary\n"
 
 	mux.HandleFunc("/user/1/share/file", func(w http.ResponseWriter, r *http.Request) {
-		if m := "POST"; m != r.Method {
-			t.Errorf("Request method %s, want %s", r.Method, m)
-		}
+		testMethod(t, r, "POST")
 
 		body, _ := ioutil.ReadAll(r.Body)
 
@@ -56,9 +54,7 @@ func TestUserMessage(t *testing.T) {
 	args := &MessageRequest{Message: "m", MessageFormat: "text"}
 
 	mux.HandleFunc("/user/@FirstL/message", func(w http.ResponseWriter, r *http.Request) {
-		if m := "POST"; m != r.Method {
-			t.Errorf("Request method %s, want %s", r.Method, m)
-		}
+		testMethod(t, r, "POST")
 		v := new(MessageRequest)
 		json.NewDecoder(r.Body).Decode(v)
 
@@ -79,9 +75,7 @@ func TestUserView(t *testing.T) {
 	defer teardown()
 
 	mux.HandleFunc("/user/@FirstL", func(w http.ResponseWriter, r *http.Request) {
-		if m := "GET"; m != r.Method {
-			t.Errorf("Request method %s, want %s", r.Method, m)
-		}
+		testMethod(t, r, "GET")
 		fmt.Fprintf(w, `
 			{
 				"created": "2013-11-07T17:57:11+00:00",
@@ -147,9 +141,13 @@ func TestUserList(t *testing.T) {
 	defer teardown()
 
 	mux.HandleFunc("/user", func(w http.ResponseWriter, r *http.Request) {
-		if m := "GET"; m != r.Method {
-			t.Errorf("Request method %s, want %s", r.Method, m)
-		}
+		testMethod(t, r, "GET")
+		testFormValues(t, r, values{
+			"start-index":     "1",
+			"max-results":     "100",
+			"include-guests":  "true",
+			"include-deleted": "true",
+		})
 		fmt.Fprintf(w, `
             {
               "items": [
@@ -178,7 +176,10 @@ func TestUserList(t *testing.T) {
 		},
 	}
 
-	opt := &UserListOptions{ListOptions: ListOptions{StartIndex: 0, MaxResults: 100}}
+	opt := &UserListOptions{
+		ListOptions{StartIndex: 1, MaxResults: 100},
+		true, true,
+	}
 
 	users, _, err := client.User.List(opt)
 	if err != nil {
