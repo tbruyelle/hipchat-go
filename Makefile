@@ -6,7 +6,6 @@ default: test
 # test runs the unit tests and vets the code
 test:
 	TF_ACC= go test -v $(TEST) $(TESTARGS) -timeout=30s -parallel=4
-	@$(MAKE) vet
 
 # testrace runs the race checker
 testrace:
