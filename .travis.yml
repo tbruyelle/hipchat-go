@@ -5,5 +5,17 @@ go:
          - 1.2
          - 1.3
          - 1.4
+         - 1.5
+         - tip
+
 install: go get -v ./hipchat
-script: go test -v ./hipchat
+script:
+    - go get -u github.com/golang/lint/golint
+    - golint ./...
+    - go test -v ./hipchat
+    - test `gofmt -l . | wc -l` = 0
+    - make test
+
+matrix:
+    allow_failures:
+        - go: tip
