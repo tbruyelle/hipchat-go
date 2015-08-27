@@ -3,8 +3,6 @@ package hipchat
 import (
 	"fmt"
 	"net/http"
-	"net/url"
-	"strconv"
 )
 
 // RoomService gives access to the room related methods of the API.
@@ -82,22 +80,6 @@ type ShareFileRequest struct {
 	Path     string `json:"path"`
 	Filename string `json:"filename,omitempty"`
 	Message  string `json:"message,omitempty"`
-}
-
-// LatestHistoryRequest represents a HipChat room chat latest history request.
-type LatestHistoryRequest struct {
-	MaxResults int
-	Timezone   string
-	NotBefore  string
-}
-
-// HistoryRequest represents a HipChat room chat history request.
-type HistoryRequest struct {
-	Date       string
-	Timezone   string
-	StartIndex int
-	MaxResults int
-	Reverse    bool
 }
 
 // History represents a HipChat room chat history.
@@ -228,32 +210,29 @@ func (r *RoomService) Update(id string, roomReq *UpdateRoomRequest) (*http.Respo
 	return r.client.Do(req, nil)
 }
 
+// HistoryOptions represents a HipChat room chat history request.
+type HistoryOptions struct {
+	ListOptions
+
+	// Either the latest date to fetch history for in ISO-8601 format, or 'recent' to fetch
+	// the latest 75 messages. Paging isn't supported for 'recent', however they are real-time
+	// values, whereas date queries may not include the most recent messages.
+	Date string `url:"date,omitempty"`
+
+	// Your timezone. Must be a supported timezone
+	Timezone string `url:"timezone,omitempty"`
+
+	// Reverse the output such that the oldest message is first.
+	// For consistent paging, set to 'false'.
+	Reverse bool `url:"reverse,omitempty"`
+}
+
 // History fetches a room's chat history.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/view_room_history
-func (r *RoomService) History(id string, roomReq *HistoryRequest) (*History, *http.Response, error) {
+func (r *RoomService) History(id string, opt *HistoryOptions) (*History, *http.Response, error) {
 	u := fmt.Sprintf("room/%s/history", id)
-	// Form query parameters
-	if roomReq != nil {
-		p := url.Values{}
-		if roomReq.Date != "" {
-			p.Add("date", roomReq.Date)
-		}
-		if roomReq.Timezone != "" {
-			p.Add("timezone", roomReq.Timezone)
-		}
-		if roomReq.StartIndex != 0 {
-			p.Add("start-index", strconv.FormatInt(int64(roomReq.StartIndex), 10))
-		}
-		if roomReq.MaxResults != 0 {
-			p.Add("max-results", strconv.FormatInt(int64(roomReq.MaxResults), 10))
-		}
-		// There's no way to tell whether caller set a boolean or not. We have to always set
-		// it.
-		p.Add("reverse", strconv.FormatBool(roomReq.Reverse))
-		u += "?" + p.Encode()
-	}
-	req, err := r.client.NewRequest("GET", u, nil, nil)
+	req, err := r.client.NewRequest("GET", u, opt, nil)
 	h := new(History)
 	resp, err := r.client.Do(req, &h)
 	if err != nil {
@@ -262,28 +241,26 @@ func (r *RoomService) History(id string, roomReq *HistoryRequest) (*History, *ht
 	return h, resp, nil
 }
 
+// LatestHistoryOptions represents a HipChat room chat latest history request.
+type LatestHistoryOptions struct {
+
+	// The maximum number of messages to return.
+	MaxResults int `url:"max-results,omitempty"`
+
+	// Your timezone. Must be a supported timezone.
+	Timezone string `url:"timezone,omitempty"`
+
+	// The id of the message that is oldest in the set of messages to be returned.
+	// The server will not return any messages that chronologically precede this message.
+	NotBefore string `url:"not-before,omitempty"`
+}
+
 // Latest fetches a room's chat history.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/view_recent_room_history
-func (r *RoomService) Latest(id string, roomReq *LatestHistoryRequest) (*History, *http.Response, error) {
+func (r *RoomService) Latest(id string, opt *LatestHistoryOptions) (*History, *http.Response, error) {
 	u := fmt.Sprintf("room/%s/history/latest", id)
-	// Form query parameters
-	if roomReq != nil {
-		p := url.Values{}
-
-		if roomReq.MaxResults != 0 {
-			p.Add("max-results", strconv.FormatInt(int64(roomReq.MaxResults), 10))
-		}
-		if roomReq.Timezone != "" {
-			p.Add("timezone", roomReq.Timezone)
-		}
-		if roomReq.NotBefore != "" {
-			p.Add("not-before", roomReq.NotBefore)
-		}
-
-		u += "?" + p.Encode()
-	}
-	req, err := r.client.NewRequest("GET", u, nil, nil)
+	req, err := r.client.NewRequest("GET", u, opt, nil)
 	h := new(History)
 	resp, err := r.client.Do(req, &h)
 	if err != nil {
