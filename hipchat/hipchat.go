@@ -125,7 +125,9 @@ func (c *Client) NewRequest(method, urlStr string, opt interface{}, body interfa
 		return nil, err
 	}
 
-	req.Header.Add("Authorization", "Bearer "+c.authToken)
+	if len(c.authToken) > 0 {
+		req.Header.Add("Authorization", "Bearer "+c.authToken)
+	}
 	req.Header.Add("Content-Type", "application/json")
 	return req, nil
 }

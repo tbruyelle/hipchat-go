@@ -11,30 +11,19 @@ func TestGenerateToken(t *testing.T) {
 	setup()
 	defer teardown()
 
-	clientID := "client-abcdef"
-	clientSecret := "secret-12345"
-
 	mux.HandleFunc("/oauth/token", func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.String() != "/oauth/token" {
-			t.Errorf("Incorrect URL = %v, want %v", r.URL, "/oauth/token")
-		}
-
-		if m := "POST"; m != r.Method {
-			t.Errorf("Request method = %v, want %v", r.Method, m)
-		}
-
-		if r.Header.Get("Authorization") != "Basic Y2xpZW50LWFiY2RlZjpzZWNyZXQtMTIzNDU=" {
-			t.Errorf("Incorrect authorization header")
-		}
-
-		if r.FormValue("grant_type") != "client_credentials" {
-			t.Errorf("grant_type should be 'client_credentials'")
-		}
-
-		if r.FormValue("scope") != "send_notification view_room" {
-			t.Errorf("scope should be 'send_notification view_room'")
-		}
-
+		testMethod(t, r, "POST")
+		testFormValues(t, r, values{
+			"username":      "username",
+			"grant_type":    "grant_type",
+			"code":          "code",
+			"client_name":   "client_name",
+			"redirect_uri":  "redirect_uri",
+			"scope":         "scope",
+			"password":      "password",
+			"group_id":      "group_id",
+			"refresh_token": "refresh_token",
+		})
 		fmt.Fprintf(w, `
 		{
             "access_token": "GeneratedAuthToken",
@@ -55,9 +44,12 @@ func TestGenerateToken(t *testing.T) {
 		TokenType:   "bearer",
 	}
 
-	credentials := ClientCredentials{ClientID: clientID, ClientSecret: clientSecret}
-
-	token, _, err := client.GenerateToken(credentials, []string{ScopeSendNotification, ScopeViewRoom})
+	opt := &GenerateTokenOptions{
+		"username", "grant_type", "code", "client_name", "redirect_uri",
+		"scope", "password", "group_id", "refresh_token",
+	}
+	client.authToken = ""
+	token, _, err := client.GenerateToken(opt)
 	if err != nil {
 		t.Fatalf("Client.GetAccessToken returns an error %v", err)
 	}
