@@ -66,6 +66,10 @@ func (c *Client) GenerateToken(opt *GenerateTokenOptions) (*OAuthAccessToken, *h
 	if err != nil {
 		return nil, nil, err
 	}
+	switch opt.GrantType {
+	case "password":
+		req.SetBasicAuth(opt.Username, opt.Password)
+	}
 
 	token := new(OAuthAccessToken)
 	resp, err := c.Do(req, token)
