@@ -25,6 +25,11 @@ type OAuthAccessToken struct {
 	TokenType   string `json:"token_type"`
 }
 
+// CreateClient creates a new client from this OAuth token
+func (t *OAuthAccessToken) CreateClient() *Client {
+	return NewClient(t.AccessToken)
+}
+
 // GenerateToken returns back an access token for a given integration's client ID and client secret
 //
 //  HipChat API documentation: https://www.hipchat.com/docs/apiv2/method/generate_token
@@ -69,7 +74,6 @@ func (c *Client) GenerateToken(credentials ClientCredentials, scopes []string) (
 
 	var token OAuthAccessToken
 	json.Unmarshal(content, &token)
-	c.authToken = token.AccessToken
 
 	return &token, resp, nil
 }

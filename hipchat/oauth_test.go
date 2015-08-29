@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestGenerateToken(t *testing.T) {
+func TestGetAccessToken(t *testing.T) {
 	setup()
 	defer teardown()
 
@@ -37,7 +37,7 @@ func TestGenerateToken(t *testing.T) {
 
 		fmt.Fprintf(w, `
 		{
-            "access_token": "GeneratedAuthToken",
+            "access_token": "q0M8p3UrBL96uHb79x4qdR2r6oEnCeajcg123456",
             "expires_in": 3599,
             "group_id": 123456,
             "group_name": "TestGroup",
@@ -47,7 +47,7 @@ func TestGenerateToken(t *testing.T) {
         `)
 	})
 	want := &OAuthAccessToken{
-		AccessToken: "GeneratedAuthToken",
+		AccessToken: "q0M8p3UrBL96uHb79x4qdR2r6oEnCeajcg123456",
 		ExpiresIn:   3599,
 		GroupID:     123456,
 		GroupName:   "TestGroup",
@@ -64,7 +64,25 @@ func TestGenerateToken(t *testing.T) {
 	if !reflect.DeepEqual(want, token) {
 		t.Errorf("Client.GetAccessToken returned %+v, want %+v", token, want)
 	}
-	if client.authToken != want.AccessToken {
-		t.Errorf("Client.authToken = %s, want %s", client.authToken, want.AccessToken)
+}
+
+func TestCreateClientFromAccessToken(t *testing.T) {
+	token := OAuthAccessToken{
+		AccessToken: "q0M8p3UrBL96uHb79x4qdR2r6oEnCeajcg123456",
+		ExpiresIn:   3599,
+		GroupID:     123456,
+		GroupName:   "TestGroup",
+		Scope:       "send_notification view_room",
+		TokenType:   "bearer",
+	}
+
+	client := token.CreateClient()
+
+	if client.authToken != token.AccessToken {
+		t.Fatalf(
+			"Client auth token does not match access token: %v != %v",
+			client.authToken,
+			token.AccessToken,
+		)
 	}
 }
