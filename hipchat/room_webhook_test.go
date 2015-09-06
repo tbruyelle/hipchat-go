@@ -13,9 +13,11 @@ func TestWebhookList(t *testing.T) {
 	defer teardown()
 
 	mux.HandleFunc("/room/1/webhook", func(w http.ResponseWriter, r *http.Request) {
-		if m := "GET"; m != r.Method {
-			t.Errorf("Request method = %v, want %v", r.Method, m)
-		}
+		testMethod(t, r, "GET")
+		testFormValues(t, r, values{
+			"max-results": "100",
+			"start-index": "1",
+		})
 		fmt.Fprintf(w, `
 		{
 			"items":[
@@ -52,9 +54,9 @@ func TestWebhookList(t *testing.T) {
 		Links:      PageLinks{Links: Links{Self: "s"}, Prev: "a", Next: "b"},
 	}
 
-	reqParams := &ListWebhooksRequest{}
+	opt := &ListWebhooksOptions{ListOptions{1, 100}}
 
-	actual, _, err := client.Room.ListWebhooks("1", reqParams)
+	actual, _, err := client.Room.ListWebhooks("1", opt)
 	if err != nil {
 		t.Fatalf("Room.ListWebhooks returns an error %v", err)
 	}
@@ -68,9 +70,7 @@ func TestWebhookDelete(t *testing.T) {
 	defer teardown()
 
 	mux.HandleFunc("/room/1/webhook/2", func(w http.ResponseWriter, r *http.Request) {
-		if m := "DELETE"; m != r.Method {
-			t.Errorf("Request method %s, want %s", r.Method, m)
-		}
+		testMethod(t, r, "DELETE")
 	})
 
 	_, err := client.Room.DeleteWebhook("1", "2")

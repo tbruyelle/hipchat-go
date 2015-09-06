@@ -19,22 +19,13 @@ func TestGetAccessToken(t *testing.T) {
 			t.Errorf("Incorrect URL = %v, want %v", r.URL, "/oauth/token")
 		}
 
-		if m := "POST"; m != r.Method {
-			t.Errorf("Request method = %v, want %v", r.Method, m)
-		}
+		testMethod(t, r, "POST")
+		testHeader(t, r, "Authorization", "Basic Y2xpZW50LWFiY2RlZjpzZWNyZXQtMTIzNDU=")
+		testFormValues(t, r, values{
 
-		if r.Header.Get("Authorization") != "Basic Y2xpZW50LWFiY2RlZjpzZWNyZXQtMTIzNDU=" {
-			t.Errorf("Incorrect authorization header")
-		}
-
-		if r.FormValue("grant_type") != "client_credentials" {
-			t.Errorf("grant_type should be 'client_credentials'")
-		}
-
-		if r.FormValue("scope") != "send_notification view_room" {
-			t.Errorf("scope should be 'send_notification view_room'")
-		}
-
+			"grant_type": "client_credentials",
+			"scope":      "send_notification view_room",
+		})
 		fmt.Fprintf(w, `
 		{
             "access_token": "q0M8p3UrBL96uHb79x4qdR2r6oEnCeajcg123456",

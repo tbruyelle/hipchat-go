@@ -15,9 +15,7 @@ func TestRoomGet(t *testing.T) {
 	defer teardown()
 
 	mux.HandleFunc("/room/1", func(w http.ResponseWriter, r *http.Request) {
-		if m := "GET"; m != r.Method {
-			t.Errorf("Request method = %v, want %v", r.Method, m)
-		}
+		testMethod(t, r, "GET")
 		fmt.Fprintf(w, `
 		{
 			"id":1,
@@ -52,9 +50,7 @@ func TestRoomList(t *testing.T) {
 	defer teardown()
 
 	mux.HandleFunc("/room", func(w http.ResponseWriter, r *http.Request) {
-		if m := "GET"; m != r.Method {
-			t.Errorf("Request method %s, want %s", r.Method, m)
-		}
+		testMethod(t, r, "GET")
 		fmt.Fprintf(w, `
 		{
 			"items": [{"id":1,"name":"n"}],
@@ -81,9 +77,7 @@ func TestRoomNotification(t *testing.T) {
 	args := &NotificationRequest{Message: "m", MessageFormat: "text"}
 
 	mux.HandleFunc("/room/1/notification", func(w http.ResponseWriter, r *http.Request) {
-		if m := "POST"; m != r.Method {
-			t.Errorf("Request method %s, want %s", r.Method, m)
-		}
+		testMethod(t, r, "POST")
 		v := new(NotificationRequest)
 		json.NewDecoder(r.Body).Decode(v)
 
@@ -119,9 +113,7 @@ func TestRoomShareFile(t *testing.T) {
 		"--hipfileboundary\n"
 
 	mux.HandleFunc("/room/1/share/file", func(w http.ResponseWriter, r *http.Request) {
-		if m := "POST"; m != r.Method {
-			t.Errorf("Request method %s, want %s", r.Method, m)
-		}
+		testMethod(t, r, "POST")
 
 		body, _ := ioutil.ReadAll(r.Body)
 
@@ -145,9 +137,7 @@ func TestRoomCreate(t *testing.T) {
 	args := &CreateRoomRequest{Name: "n", Topic: "t"}
 
 	mux.HandleFunc("/room", func(w http.ResponseWriter, r *http.Request) {
-		if m := "POST"; m != r.Method {
-			t.Errorf("Request method %s, want %s", r.Method, m)
-		}
+		testMethod(t, r, "POST")
 		v := new(CreateRoomRequest)
 		json.NewDecoder(r.Body).Decode(v)
 
@@ -172,9 +162,7 @@ func TestRoomDelete(t *testing.T) {
 	defer teardown()
 
 	mux.HandleFunc("/room/1", func(w http.ResponseWriter, r *http.Request) {
-		if m := "DELETE"; m != r.Method {
-			t.Errorf("Request method %s, want %s", r.Method, m)
-		}
+		testMethod(t, r, "DELETE")
 	})
 
 	_, err := client.Room.Delete("1")
@@ -190,9 +178,7 @@ func TestRoomUpdate(t *testing.T) {
 	args := &UpdateRoomRequest{Name: "n", Topic: "t"}
 
 	mux.HandleFunc("/room/1", func(w http.ResponseWriter, r *http.Request) {
-		if m := "PUT"; m != r.Method {
-			t.Errorf("Request method %s, want %s", r.Method, m)
-		}
+		testMethod(t, r, "PUT")
 		v := new(UpdateRoomRequest)
 		json.NewDecoder(r.Body).Decode(v)
 
@@ -211,12 +197,15 @@ func TestRoomHistory(t *testing.T) {
 	setup()
 	defer teardown()
 
-	args := &HistoryRequest{}
-
 	mux.HandleFunc("/room/1/history", func(w http.ResponseWriter, r *http.Request) {
-		if m := "GET"; m != r.Method {
-			t.Errorf("Request method %s, want %s", r.Method, m)
-		}
+		testMethod(t, r, "GET")
+		testFormValues(t, r, values{
+			"start-index": "1",
+			"max-results": "100",
+			"date":        "date",
+			"timezone":    "tz",
+			"reverse":     "true",
+		})
 		fmt.Fprintf(w, `
 		{
       "items": [
@@ -237,12 +226,16 @@ func TestRoomHistory(t *testing.T) {
       "startIndex": 0
 		}`)
 	})
-	want := &History{Items: []Message{{Date: "2014-11-23T21:23:49.807578+00:00", From: "Test Testerson", ID: "f058e668-c9c0-4cd5-9ca5-e2c42b06f3ed", Mentions: []User{}, Message: "Hey there!", MessageFormat: "html", Type: "notification"}}, StartIndex: 0, MaxResults: 100, Links: PageLinks{Links: Links{Self: "https://api.hipchat.com/v2/room/1/history"}}}
 
-	hist, _, err := client.Room.History("1", args)
+	opt := &HistoryOptions{
+		ListOptions{1, 100}, "date", "tz", true,
+	}
+	hist, _, err := client.Room.History("1", opt)
 	if err != nil {
 		t.Fatalf("Room.History returns an error %v", err)
 	}
+
+	want := &History{Items: []Message{{Date: "2014-11-23T21:23:49.807578+00:00", From: "Test Testerson", ID: "f058e668-c9c0-4cd5-9ca5-e2c42b06f3ed", Mentions: []User{}, Message: "Hey there!", MessageFormat: "html", Type: "notification"}}, StartIndex: 0, MaxResults: 100, Links: PageLinks{Links: Links{Self: "https://api.hipchat.com/v2/room/1/history"}}}
 	if !reflect.DeepEqual(want, hist) {
 		t.Errorf("Room.History returned %+v, want %+v", hist, want)
 	}
@@ -252,12 +245,13 @@ func TestRoomLatest(t *testing.T) {
 	setup()
 	defer teardown()
 
-	args := &LatestHistoryRequest{}
-
 	mux.HandleFunc("/room/1/history/latest", func(w http.ResponseWriter, r *http.Request) {
-		if m := "GET"; m != r.Method {
-			t.Errorf("Request method %s, want %s", r.Method, m)
-		}
+		testMethod(t, r, "GET")
+		testFormValues(t, r, values{
+			"max-results": "100",
+			"timezone":    "tz",
+			"not-before":  "notbefore",
+		})
 		fmt.Fprintf(w, `
 		{
       "items": [
@@ -277,12 +271,15 @@ func TestRoomLatest(t *testing.T) {
       "maxResults": 100
 		}`)
 	})
-	want := &History{Items: []Message{{Date: "2014-11-23T21:23:49.807578+00:00", From: "Test Testerson", ID: "f058e668-c9c0-4cd5-9ca5-e2c42b06f3ed", Mentions: []User{}, Message: "Hey there!", MessageFormat: "html", Type: "notification"}}, MaxResults: 100, Links: PageLinks{Links: Links{Self: "https://api.hipchat.com/v2/room/1/history/latest"}}}
 
-	hist, _, err := client.Room.Latest("1", args)
+	opt := &LatestHistoryOptions{
+		100, "tz", "notbefore",
+	}
+	hist, _, err := client.Room.Latest("1", opt)
 	if err != nil {
 		t.Fatalf("Room.Latest returns an error %v", err)
 	}
+	want := &History{Items: []Message{{Date: "2014-11-23T21:23:49.807578+00:00", From: "Test Testerson", ID: "f058e668-c9c0-4cd5-9ca5-e2c42b06f3ed", Mentions: []User{}, Message: "Hey there!", MessageFormat: "html", Type: "notification"}}, MaxResults: 100, Links: PageLinks{Links: Links{Self: "https://api.hipchat.com/v2/room/1/history/latest"}}}
 	if !reflect.DeepEqual(want, hist) {
 		t.Errorf("Room.Latest returned %+v, want %+v", hist, want)
 	}
@@ -295,9 +292,7 @@ func TestSetTopic(t *testing.T) {
 	args := &SetTopicRequest{Topic: "t"}
 
 	mux.HandleFunc("/room/1/topic", func(w http.ResponseWriter, r *http.Request) {
-		if m := "PUT"; m != r.Method {
-			t.Errorf("Request method %s, want %s", r.Method, m)
-		}
+		testMethod(t, r, "PUT")
 		v := new(SetTopicRequest)
 		json.NewDecoder(r.Body).Decode(v)
 
@@ -319,9 +314,7 @@ func TestInvite(t *testing.T) {
 	args := &InviteRequest{Reason: "r"}
 
 	mux.HandleFunc("/room/1/invite/user", func(w http.ResponseWriter, r *http.Request) {
-		if m := "POST"; m != r.Method {
-			t.Errorf("Request method %s, want %s", r.Method, m)
-		}
+		testMethod(t, r, "POST")
 		v := new(InviteRequest)
 		json.NewDecoder(r.Body).Decode(v)
 
