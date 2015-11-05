@@ -73,6 +73,7 @@ type NotificationRequest struct {
 	Message       string `json:"message,omitempty"`
 	Notify        bool   `json:"notify,omitempty"`
 	MessageFormat string `json:"message_format,omitempty"`
+	From          string `json:"from,omitempty"`
 }
 
 // ShareFileRequest represents a HipChat room file share request.
