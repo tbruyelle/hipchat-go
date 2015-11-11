@@ -83,16 +83,16 @@ type NotificationRequest struct {
 // Beta API docs: https://ecosystem.atlassian.net/wiki/display/HIPDEV/HipChat+Cards
 type Card struct {
 	Style       string                 `json:"style"`
-	URL         string                 `json:"url"`
+	URL         string                 `json:"url,omitempty"`
 	ID          string                 `json:"id"`
-	Icon        Icon                   `json:"icon,omitempty"`
+	Icon        *Icon                  `json:"icon,omitempty"`
 	Title       string                 `json:"title"`
 	Description CardDescription        `json:"description"`
 	Images      *Images                `json:"images,omitempty"`
 	Metadata    map[string]interface{} `json:"metadata,omitempty"`
 	Date        uint32                 `json:"date,omitempty"`
 	Attributes  []Attribute            `json:"attributes,omitempty"`
-	Activity    Activity               `json:"activity"`
+	Activity    *Activity              `json:"activity,omitempty"`
 }
 
 const (
