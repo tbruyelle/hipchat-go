@@ -212,8 +212,6 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 		return nil, err
 	}
 
-	defer resp.Body.Close()
-
 	if AuthTest {
 		// If AuthTest is enabled, the reponse won't be the
 		// one defined in the API endpoint.
@@ -224,6 +222,7 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 		}
 
 		if v != nil {
+			defer resp.Body.Close()
 			if w, ok := v.(io.Writer); ok {
 				io.Copy(w, resp.Body)
 			} else {
