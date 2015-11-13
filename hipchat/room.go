@@ -88,6 +88,7 @@ type Card struct {
 	Icon        *Icon                  `json:"icon,omitempty"`
 	Title       string                 `json:"title"`
 	Description CardDescription        `json:"description"`
+	Thumbnail   *Icon                  `json:"thumbnail,omitempty"`
 	Images      *Images                `json:"images,omitempty"`
 	Metadata    map[string]interface{} `json:"metadata,omitempty"`
 	Date        uint32                 `json:"date,omitempty"`
@@ -180,15 +181,16 @@ type Attribute struct {
 
 // AttributeValue represents the value of an attribute
 type AttributeValue struct {
-	Icon  string `json:"icon,omitempty"`
+	Icon  *Icon  `json:"icon,omitempty"`
 	Label string `json:"label,omitempty"`
 	URL   string `json:"url,omitempty"`
+	Style string `json:"style,omitempty"`
 }
 
 // Activity represents an activity that occurred
 type Activity struct {
-	Icon string          `json:"icon,omitempty"`
-	HTML json.RawMessage `json:"html,omitempty"`
+	Icon *Icon  `json:"icon,omitempty"`
+	HTML string `json:"html,omitempty"`
 }
 
 // ShareFileRequest represents a HipChat room file share request.
@@ -230,7 +232,7 @@ type InviteRequest struct {
 // AddAttribute adds an attribute to a Card
 func (c *Card) AddAttribute(mainLabel, subLabel, url, iconURL string) {
 	attr := Attribute{Label: mainLabel}
-	attr.Value = AttributeValue{Label: subLabel, URL: url, Icon: iconURL}
+	attr.Value = AttributeValue{Label: subLabel, URL: url, Icon: &Icon{URL: iconURL}}
 
 	c.Attributes = append(c.Attributes, attr)
 }
