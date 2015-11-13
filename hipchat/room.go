@@ -1,6 +1,8 @@
 package hipchat
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 )
@@ -74,6 +76,121 @@ type NotificationRequest struct {
 	Notify        bool   `json:"notify,omitempty"`
 	MessageFormat string `json:"message_format,omitempty"`
 	From          string `json:"from,omitempty"`
+	Card          *Card  `json:"card,omitempty"`
+}
+
+// Card is used to send information as messages to Hipchat rooms
+// Beta API docs: https://ecosystem.atlassian.net/wiki/display/HIPDEV/HipChat+Cards
+type Card struct {
+	Style       string                 `json:"style"`
+	URL         string                 `json:"url,omitempty"`
+	ID          string                 `json:"id"`
+	Icon        *Icon                  `json:"icon,omitempty"`
+	Title       string                 `json:"title"`
+	Description CardDescription        `json:"description"`
+	Thumbnail   *Icon                  `json:"thumbnail,omitempty"`
+	Images      *Images                `json:"images,omitempty"`
+	Metadata    map[string]interface{} `json:"metadata,omitempty"`
+	Date        uint32                 `json:"date,omitempty"`
+	Attributes  []Attribute            `json:"attributes,omitempty"`
+	Activity    *Activity              `json:"activity,omitempty"`
+}
+
+const (
+	// CardStyleFile represents a Card notification related to a file
+	CardStyleFile = "file"
+
+	// CardStyleImage represents a Card notification related to an image
+	CardStyleImage = "image"
+
+	// CardStyleApplication represents a Card notification related to an application
+	CardStyleApplication = "application"
+)
+
+// CardDescription represents the main content of the Card
+type CardDescription struct {
+	Format string
+	Value  string
+}
+
+// MarshalJSON serializes a CardDescription into JSON
+func (c CardDescription) MarshalJSON() ([]byte, error) {
+	if c.Format == "" {
+		return json.Marshal(c.Value)
+	}
+
+	obj := make(map[string]string)
+	obj["format"] = c.Format
+	obj["value"] = c.Value
+
+	return json.Marshal(obj)
+}
+
+// UnmarshalJSON deserializes a JSON-serialized CardDescription
+func (c *CardDescription) UnmarshalJSON(data []byte) error {
+	// Compact the JSON to make it easier to process below
+	buffer := bytes.NewBuffer([]byte{})
+	err := json.Compact(buffer, data)
+	if err != nil {
+		return err
+	}
+	data = buffer.Bytes()
+
+	// Since Description can be either a string value or an object, we
+	// must check and deserialize appropriately
+
+	if data[0] == 123 { // == }
+		obj := make(map[string]string)
+
+		err = json.Unmarshal(data, &obj)
+		if err != nil {
+			return err
+		}
+
+		c.Format = obj["format"]
+		c.Value = obj["value"]
+	} else {
+		c.Format = ""
+		err = json.Unmarshal(data, &c.Value)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Icon represents an icon
+type Icon struct {
+	URL string `json:"url"`
+}
+
+// Images represents
+type Images struct {
+	Image      string `json:"image"`
+	ImageSmall string `json:"image-small"`
+	ImageBig   string `json:"image-big"`
+}
+
+// Attribute represents an attribute on a Card
+type Attribute struct {
+	Label string         `json:"label,omitempty"`
+	Value AttributeValue `json:"value"`
+}
+
+// AttributeValue represents the value of an attribute
+type AttributeValue struct {
+	Icon  *Icon  `json:"icon,omitempty"`
+	Label string `json:"label,omitempty"`
+	URL   string `json:"url,omitempty"`
+	Style string `json:"style,omitempty"`
+}
+
+// Activity represents an activity that occurred
+type Activity struct {
+	Icon *Icon  `json:"icon,omitempty"`
+	HTML string `json:"html,omitempty"`
 }
 
 // ShareFileRequest represents a HipChat room file share request.
@@ -110,6 +227,14 @@ type SetTopicRequest struct {
 // InviteRequest represents a hipchat invite to room request
 type InviteRequest struct {
 	Reason string `json:"reason"`
+}
+
+// AddAttribute adds an attribute to a Card
+func (c *Card) AddAttribute(mainLabel, subLabel, url, iconURL string) {
+	attr := Attribute{Label: mainLabel}
+	attr.Value = AttributeValue{Label: subLabel, URL: url, Icon: &Icon{URL: iconURL}}
+
+	c.Attributes = append(c.Attributes, attr)
 }
 
 // List returns all the rooms authorized.

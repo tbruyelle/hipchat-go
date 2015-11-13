@@ -328,3 +328,71 @@ func TestInvite(t *testing.T) {
 		t.Fatalf("Room.Invite returns an error %v", err)
 	}
 }
+
+func TestCardDescriptionJSONEncodeWithString(t *testing.T) {
+	description := CardDescription{Value: "This is a test"}
+	expected := `"This is a test"`
+
+	encoded, err := json.Marshal(description)
+	if err != nil {
+		t.Errorf("Encoding of CardDescription failed")
+	}
+
+	if string(encoded) != expected {
+		t.Fatalf("Encoding of CardDescription failed: %s", encoded)
+	}
+}
+
+func TestCardDescriptionJSONDecodeWithString(t *testing.T) {
+	encoded := []byte(`"This is a test"`)
+	expected := CardDescription{Format: "", Value: "This is a test"}
+
+	var actual CardDescription
+
+	err := json.Unmarshal(encoded, &actual)
+	if err != nil {
+		t.Errorf("Decoding of CardDescription failed: %v", err)
+	}
+
+	if actual.Value != expected.Value {
+		t.Fatalf("Unexpected CardDescription.Value: %v", actual.Value)
+	}
+
+	if actual.Format != expected.Format {
+		t.Fatalf("Unexpected CardDescription.Format: %v", actual.Format)
+	}
+}
+
+func TestCardDescriptionJSONEncodeWithObject(t *testing.T) {
+	description := CardDescription{Format: "html", Value: "<strong>This is a test</strong>"}
+	expected := `{"format":"html","value":"\u003cstrong\u003eThis is a test\u003c/strong\u003e"}`
+
+	encoded, err := json.Marshal(description)
+	if err != nil {
+		t.Errorf("Encoding of CardDescription failed")
+	}
+
+	if string(encoded) != expected {
+		t.Fatalf("Encoding of CardDescription failed: %s", encoded)
+	}
+}
+
+func TestCardDescriptionJSONDecodeWithObject(t *testing.T) {
+	encoded := []byte(`{"format":"html","value":"\u003cstrong\u003eThis is a test\u003c/strong\u003e"}`)
+	expected := CardDescription{Format: "html", Value: "<strong>This is a test</strong>"}
+
+	var actual CardDescription
+
+	err := json.Unmarshal(encoded, &actual)
+	if err != nil {
+		t.Errorf("Decoding of CardDescription failed: %v", err)
+	}
+
+	if actual.Value != expected.Value {
+		t.Fatalf("Unexpected CardDescription.Value: %v", actual.Value)
+	}
+
+	if actual.Format != expected.Format {
+		t.Fatalf("Unexpected CardDescription.Format: %v", actual.Format)
+	}
+}
