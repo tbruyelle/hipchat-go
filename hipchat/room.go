@@ -80,20 +80,17 @@ type NotificationRequest struct {
 }
 
 // Card is used to send information as messages to Hipchat rooms
-// Beta API docs: https://ecosystem.atlassian.net/wiki/display/HIPDEV/HipChat+Cards
 type Card struct {
-	Style       string                 `json:"style"`
-	URL         string                 `json:"url,omitempty"`
-	ID          string                 `json:"id"`
-	Icon        *Icon                  `json:"icon,omitempty"`
-	Title       string                 `json:"title"`
-	Description CardDescription        `json:"description"`
-	Thumbnail   *Icon                  `json:"thumbnail,omitempty"`
-	Images      *Images                `json:"images,omitempty"`
-	Metadata    map[string]interface{} `json:"metadata,omitempty"`
-	Date        uint32                 `json:"date,omitempty"`
-	Attributes  []Attribute            `json:"attributes,omitempty"`
-	Activity    *Activity              `json:"activity,omitempty"`
+	Style       string          `json:"style"`
+	Description CardDescription `json:"description"`
+	Format      string          `json:"format,omitempty"`
+	URL         string          `json:"url,omitempty"`
+	Title       string          `json:"title"`
+	Thumbnail   *Icon           `json:"thumbnail,omitempty"`
+	Activity    *Activity       `json:"activity,omitempty"`
+	Attributes  []Attribute     `json:"attributes,omitempty"`
+	ID          string          `json:"id,omitempty"`
+	Icon        *Icon           `json:"icon,omitempty"`
 }
 
 const (
@@ -105,6 +102,12 @@ const (
 
 	// CardStyleApplication represents a Card notification related to an application
 	CardStyleApplication = "application"
+
+	// CardStyleLink represents a Card notification related to a link
+	CardStyleLink = "link"
+
+	// CardStyleMedia represents a Card notiifcation related to media
+	CardStyleMedia = "media"
 )
 
 // CardDescription represents the main content of the Card
@@ -163,14 +166,16 @@ func (c *CardDescription) UnmarshalJSON(data []byte) error {
 
 // Icon represents an icon
 type Icon struct {
-	URL string `json:"url"`
+	URL   string `json:"url"`
+	URL2x string `json:"url@2x,omitempty"`
 }
 
-// Images represents
-type Images struct {
-	Image      string `json:"image"`
-	ImageSmall string `json:"image-small"`
-	ImageBig   string `json:"image-big"`
+// Thumbnail represents a thumbnail image
+type Thumbnail struct {
+	URL    string `json:"url"`
+	URL2x  string `json:"url@2x,omitempty"`
+	Width  uint   `json:"width,omitempty"`
+	Height uint   `json:"url,omitempty"`
 }
 
 // Attribute represents an attribute on a Card
@@ -181,10 +186,10 @@ type Attribute struct {
 
 // AttributeValue represents the value of an attribute
 type AttributeValue struct {
-	Icon  *Icon  `json:"icon,omitempty"`
-	Label string `json:"label,omitempty"`
 	URL   string `json:"url,omitempty"`
 	Style string `json:"style,omitempty"`
+	Label string `json:"label"`
+	Icon  *Icon  `json:"icon,omitempty"`
 }
 
 // Activity represents an activity that occurred
