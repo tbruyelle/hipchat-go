@@ -93,6 +93,16 @@ func NewClient(authToken string) *Client {
 	return c
 }
 
+// SetHTTPClient sets the HTTP client for performing API requests.
+// If a nil httpClient is provided, http.DefaultClient will be used.
+func (c *Client) SetHTTPClient(httpClient *http.Client) {
+	if httpClient == nil {
+		c.client = http.DefaultClient
+	} else {
+		c.client = httpClient
+	}
+}
+
 // NewRequest creates an API request. This method can be used to performs
 // API request not implemented in this library. Otherwise it should not be
 // be used directly.
