@@ -93,6 +93,29 @@ func TestRoomNotification(t *testing.T) {
 	}
 }
 
+func TestRoomMessage(t *testing.T) {
+	setup()
+	defer teardown()
+
+	args := &RoomMessageRequest{Message: "m"}
+
+	mux.HandleFunc("/room/1/message", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "POST")
+		v := new(RoomMessageRequest)
+		json.NewDecoder(r.Body).Decode(v)
+
+		if !reflect.DeepEqual(v, args) {
+			t.Errorf("Request body %+v, want %+v", v, args)
+		}
+		w.WriteHeader(http.StatusNoContent)
+	})
+
+	_, err := client.Room.Message("1", args)
+	if err != nil {
+		t.Fatalf("Room.Message returns an error %v", err)
+	}
+}
+
 func TestRoomShareFile(t *testing.T) {
 	setup()
 	defer teardown()

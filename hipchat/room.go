@@ -79,6 +79,11 @@ type NotificationRequest struct {
 	Card          *Card  `json:"card,omitempty"`
 }
 
+// RoomMessageRequest represents a Hipchat room message request.
+type RoomMessageRequest struct {
+	Message string `json:"message"`
+}
+
 // Card is used to send information as messages to Hipchat rooms
 type Card struct {
 	Style       string          `json:"style"`
@@ -281,6 +286,18 @@ func (r *RoomService) Get(id string) (*Room, *http.Response, error) {
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/send_room_notification
 func (r *RoomService) Notification(id string, notifReq *NotificationRequest) (*http.Response, error) {
 	req, err := r.client.NewRequest("POST", fmt.Sprintf("room/%s/notification", id), nil, notifReq)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.client.Do(req, nil)
+}
+
+// Notification sends a notification to the room specified by the id.
+//
+// HipChat API docs: https://www.hipchat.com/docs/apiv2/method/send_room_notification
+func (r *RoomService) Message(id string, msgReq *RoomMessageRequest) (*http.Response, error) {
+	req, err := r.client.NewRequest("POST", fmt.Sprintf("room/%s/message", id), nil, msgReq)
 	if err != nil {
 		return nil, err
 	}
