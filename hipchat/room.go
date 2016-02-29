@@ -39,9 +39,9 @@ type Room struct {
 
 // RoomStatistics represents the HipChat room statistics.
 type RoomStatistics struct {
-	Links Links `json:"links"`
-	MessagesSent int `json:"messages_sent,omitempty"`
-	LastActive string `json:"last_active,omitempty"`
+	Links        Links  `json:"links"`
+	MessagesSent int    `json:"messages_sent,omitempty"`
+	LastActive   string `json:"last_active,omitempty"`
 }
 
 // CreateRoomRequest represents a HipChat room creation request.
