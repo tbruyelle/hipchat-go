@@ -40,6 +40,8 @@ type Room struct {
 // RoomStatistics represents the HipChat room statistics.
 type RoomStatistics struct {
 	Links Links `json:"links"`
+	MessagesSent int `json:"messages_sent,omitempty"`
+	LastActive string `json:"last_active,omitempty"`
 }
 
 // CreateRoomRequest represents a HipChat room creation request.
@@ -55,7 +57,7 @@ type CreateRoomRequest struct {
 type UpdateRoomRequest struct {
 	Name          string `json:"name"`
 	Topic         string `json:"topic"`
-	IsGuestAccess bool   `json:"is_guest_access"`
+	IsGuestAccess bool   `json:"is_guest_accessible"`
 	IsArchived    bool   `json:"is_archived"`
 	Privacy       string `json:"privacy"`
 	Owner         ID     `json:"owner"`
@@ -279,6 +281,23 @@ func (r *RoomService) Get(id string) (*Room, *http.Response, error) {
 		return nil, resp, err
 	}
 	return room, resp, nil
+}
+
+// GetStatistics returns the room statistics pecified by the id.
+//
+// HipChat API docs: https://www.hipchat.com/docs/apiv2/method/get_room_statistics
+func (r *RoomService) GetStatistics(id string) (*RoomStatistics, *http.Response, error) {
+	req, err := r.client.NewRequest("GET", fmt.Sprintf("room/%s/statistics", id), nil, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	roomStatistics := new(RoomStatistics)
+	resp, err := r.client.Do(req, roomStatistics)
+	if err != nil {
+		return nil, resp, err
+	}
+	return roomStatistics, resp, nil
 }
 
 // Notification sends a notification to the room specified by the id.
