@@ -70,6 +70,32 @@ func TestRoomList(t *testing.T) {
 	}
 }
 
+func TestRoomGetStatistics(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/room/1/statistics", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "GET")
+		fmt.Fprintf(w, `
+		{
+			"messages_sent":1,
+			"last_active":"2016-02-29T09:03:53+00:00"
+		}`)
+	})
+	want := &RoomStatistics{
+		MessagesSent: 1,
+		LastActive:   "2016-02-29T09:03:53+00:00",
+	}
+
+	roomStatistics, _, err := client.Room.GetStatistics("1")
+	if err != nil {
+		t.Fatalf("Room.GetStatistics returns an error %v", err)
+	}
+	if !reflect.DeepEqual(want, roomStatistics) {
+		t.Errorf("Room.GetStatistics returned %+v, want %+v", roomStatistics, want)
+	}
+}
+
 func TestRoomNotification(t *testing.T) {
 	setup()
 	defer teardown()
