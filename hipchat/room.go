@@ -57,7 +57,7 @@ type CreateRoomRequest struct {
 type UpdateRoomRequest struct {
 	Name          string `json:"name"`
 	Topic         string `json:"topic"`
-	IsGuestAccess bool   `json:"is_guest_access"`
+	IsGuestAccess bool   `json:"is_guest_accessible"`
 	IsArchived    bool   `json:"is_archived"`
 	Privacy       string `json:"privacy"`
 	Owner         ID     `json:"owner"`
