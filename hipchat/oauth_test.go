@@ -82,7 +82,7 @@ func TestCreateClientFromAccessToken(t *testing.T) {
 }
 
 func TestCreateClientFromAccessTokenWithCustomURL(t *testing.T) {
-	nonDefaultUrl, _ := url.Parse("https://server.example.com/v2/")
+	nonDefaultURL, _ := url.Parse("https://server.example.com/v2/")
 	token := OAuthAccessToken{
 		AccessToken: "q0M8p3UrBL96uHb79x4qdR2r6oEnCeajcg123456",
 		ExpiresIn:   3599,
@@ -90,7 +90,7 @@ func TestCreateClientFromAccessTokenWithCustomURL(t *testing.T) {
 		GroupName:   "TestGroup",
 		Scope:       "send_notification view_room",
 		TokenType:   "bearer",
-		BaseURL:     nonDefaultUrl,
+		BaseURL:     nonDefaultURL,
 	}
 
 	client := token.CreateClient()

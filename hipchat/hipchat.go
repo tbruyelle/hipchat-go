@@ -102,14 +102,15 @@ func NewClient(authToken string, options ...func(*Client) error) *Client {
 	return c
 }
 
-func OptionBaseUrl(baseUrl string) func(c *Client) error {
+// OptionBaseURL sets a custom BaseURL. Use this if working with HipChat Server
+func OptionBaseURL(baseURL string) func(c *Client) error {
 	return func(c *Client) error {
-		parsedUrl, err := url.Parse(baseUrl)
+		parsedURL, err := url.Parse(baseURL)
 		if err != nil {
 			return err
 		}
 
-		c.BaseURL = parsedUrl
+		c.BaseURL = parsedURL
 		return nil
 	}
 

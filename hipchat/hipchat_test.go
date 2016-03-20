@@ -80,14 +80,14 @@ func TestNewClient(t *testing.T) {
 
 func TestNewClientCustomUrl(t *testing.T) {
 	authToken := "AuthToken"
-	nonDefaultUrl := "https://server.example.com/v2/"
+	nonDefaultURL := "https://server.example.com/v2/"
 
-	c := NewClient(authToken, OptionBaseUrl(nonDefaultUrl))
+	c := NewClient(authToken, OptionBaseURL(nonDefaultURL))
 
 	if c.authToken != authToken {
 		t.Errorf("NewClient authToken %s, want %s", c.authToken, authToken)
 	}
-	if c.BaseURL.String() != nonDefaultUrl {
+	if c.BaseURL.String() != nonDefaultURL {
 		t.Errorf("NewClient BaseURL %s, want %s", c.BaseURL.String(), defaultBaseURL)
 	}
 	if c.client != http.DefaultClient {
