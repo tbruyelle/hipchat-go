@@ -76,7 +76,7 @@ var AuthTestResponse = map[string]interface{}{}
 
 // NewClient returns a new HipChat API client. You must provide a valid
 // AuthToken retrieved from your HipChat account.
-func NewClient(authToken string) *Client {
+func NewClient(authToken string, options ...func(*Client) error) *Client {
 	baseURL, err := url.Parse(defaultBaseURL)
 	if err != nil {
 		panic(err)
@@ -87,10 +87,32 @@ func NewClient(authToken string) *Client {
 		BaseURL:   baseURL,
 		client:    http.DefaultClient,
 	}
+
+	// Option paremeters values:
+	for _, option := range options {
+		err := option(c)
+		if err != nil {
+			panic(err)
+		}
+	}
+
 	c.Room = &RoomService{client: c}
 	c.User = &UserService{client: c}
 	c.Emoticon = &EmoticonService{client: c}
 	return c
+}
+
+func OptionBaseUrl(baseUrl string) func(c *Client) error {
+	return func(c *Client) error {
+		parsedUrl, err := url.Parse(baseUrl)
+		if err != nil {
+			return err
+		}
+
+		c.BaseURL = parsedUrl
+		return nil
+	}
+
 }
 
 // SetHTTPClient sets the HTTP client for performing API requests.

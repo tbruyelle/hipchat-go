@@ -3,6 +3,7 @@ package hipchat
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"reflect"
 	"testing"
 )
@@ -44,6 +45,7 @@ func TestGetAccessToken(t *testing.T) {
 		GroupName:   "TestGroup",
 		Scope:       "send_notification view_room",
 		TokenType:   "bearer",
+		BaseURL:     client.BaseURL,
 	}
 
 	credentials := ClientCredentials{ClientID: clientID, ClientSecret: clientSecret}
@@ -65,6 +67,7 @@ func TestCreateClientFromAccessToken(t *testing.T) {
 		GroupName:   "TestGroup",
 		Scope:       "send_notification view_room",
 		TokenType:   "bearer",
+		BaseURL:     client.BaseURL,
 	}
 
 	client := token.CreateClient()
@@ -74,6 +77,37 @@ func TestCreateClientFromAccessToken(t *testing.T) {
 			"Client auth token does not match access token: %v != %v",
 			client.authToken,
 			token.AccessToken,
+		)
+	}
+}
+
+func TestCreateClientFromAccessTokenWithCustomURL(t *testing.T) {
+	nonDefaultUrl, _ := url.Parse("https://server.example.com/v2/")
+	token := OAuthAccessToken{
+		AccessToken: "q0M8p3UrBL96uHb79x4qdR2r6oEnCeajcg123456",
+		ExpiresIn:   3599,
+		GroupID:     123456,
+		GroupName:   "TestGroup",
+		Scope:       "send_notification view_room",
+		TokenType:   "bearer",
+		BaseURL:     nonDefaultUrl,
+	}
+
+	client := token.CreateClient()
+
+	if client.authToken != token.AccessToken {
+		t.Fatalf(
+			"Client auth token does not match access token: %v != %v",
+			client.authToken,
+			token.AccessToken,
+		)
+	}
+
+	if client.BaseURL.String() != token.BaseURL.String() {
+		t.Fatalf(
+			"Client base url not match access token: %v != %v",
+			client.BaseURL,
+			token.BaseURL,
 		)
 	}
 }
