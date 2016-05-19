@@ -21,8 +21,8 @@ func TestWebhookList(t *testing.T) {
 		fmt.Fprintf(w, `
 		{
 			"items":[
-			  {"name":"a", "pattern":"a", "event":"message_received", "url":"h", "id":1, "links":{"self":"s"}},
-				{"name":"b", "pattern":"b", "event":"message_received", "url":"h", "id":2, "links":{"self":"s"}}
+			  {"name":"a", "key": "a", "pattern":"a", "event":"message_received", "url":"h", "id":1, "links":{"self":"s"}},
+				{"name":"b", "key": "b", "pattern":"b", "event":"message_received", "url":"h", "id":2, "links":{"self":"s"}}
 			],
 			"links":{"self":"s", "prev":"a", "next":"b"},
 			"startIndex":0,
@@ -34,6 +34,7 @@ func TestWebhookList(t *testing.T) {
 		Webhooks: []Webhook{
 			{
 				Name:    "a",
+				Key:     "a",
 				Pattern: "a",
 				Event:   "message_received",
 				URL:     "h",
@@ -42,6 +43,7 @@ func TestWebhookList(t *testing.T) {
 			},
 			{
 				Name:    "b",
+				Key:     "b",
 				Pattern: "b",
 				Event:   "message_received",
 				URL:     "h",
