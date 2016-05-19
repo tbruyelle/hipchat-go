@@ -13,6 +13,7 @@ import (
 type Webhook struct {
 	Links   Links  `json:"links"`
 	Name    string `json:"name"`
+	Key     string `json:"key,omitempty"`
 	Event   string `json:"event"`
 	Pattern string `json:"pattern"`
 	URL     string `json:"url"`
@@ -37,6 +38,7 @@ type ListWebhooksOptions struct {
 // CreateWebhookRequest represents the body of the CreateWebhook method.
 type CreateWebhookRequest struct {
 	Name    string `json:"name"`
+	Key     string `json:"key,omitempty"`
 	Event   string `json:"event"`
 	Pattern string `json:"pattern"`
 	URL     string `json:"url"`
