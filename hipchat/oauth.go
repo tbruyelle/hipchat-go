@@ -23,11 +23,12 @@ type OAuthAccessToken struct {
 	GroupName   string `json:"group_name"`
 	Scope       string `json:"scope"`
 	TokenType   string `json:"token_type"`
+	BaseURL     *url.URL
 }
 
 // CreateClient creates a new client from this OAuth token
 func (t *OAuthAccessToken) CreateClient() *Client {
-	return NewClient(t.AccessToken)
+	return NewClient(t.AccessToken, OptionBaseURL(t.BaseURL.String()))
 }
 
 // GenerateToken returns back an access token for a given integration's client ID and client secret
@@ -74,7 +75,7 @@ func (c *Client) GenerateToken(credentials ClientCredentials, scopes []string) (
 
 	var token OAuthAccessToken
 	json.Unmarshal(content, &token)
-
+	token.BaseURL = c.BaseURL
 	return &token, resp, nil
 }
 
