@@ -190,7 +190,7 @@ func TestUserList(t *testing.T) {
 	}
 }
 
-func TestUpdate(t *testing.T) {
+func TestUserUpdate(t *testing.T) {
 	setup()
 	defer teardown()
 
