@@ -446,6 +446,30 @@ func TestCardDescriptionJSONDecodeWithObject(t *testing.T) {
 	}
 }
 
+func TestGlanceRequestJSONEncodeWithString(t *testing.T) {
+	gr := GlanceRequest{
+		Glance: []*Glance{
+			&Glance{
+				Key: "abc",
+				Content: GlanceContent{
+					Status: GlanceStatus{Type: "lozenge", Value: AttributeValue{Type: "default", Label: "something"}},
+					Label:  AttributeValue{Type: "html", Value: "hello"},
+				},
+			},
+		},
+	}
+	expected := `{"glance":[{"key":"abc","content":{"status":{"type":"lozenge","value":{"type":"default","label":"something"}},"label":{"type":"html","value":"hello"}}}]}`
+
+	encoded, err := json.Marshal(gr)
+	if err != nil {
+		t.Errorf("Encoding of GlanceRequest failed")
+	}
+
+	if string(encoded) != expected {
+		t.Fatalf("Encoding of GlanceRequest failed: %s", encoded)
+	}
+}
+
 func TestGlanceContentJSONEncodeWithString(t *testing.T) {
 	gcTests := []struct {
 		gc       GlanceContent
