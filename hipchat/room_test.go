@@ -445,3 +445,52 @@ func TestCardDescriptionJSONDecodeWithObject(t *testing.T) {
 		t.Fatalf("Unexpected CardDescription.Format: %v", actual.Format)
 	}
 }
+
+func TestGlanceContentJSONEncodeWithString(t *testing.T) {
+	gcTests := []struct {
+		gc       GlanceContent
+		expected string
+	}{
+		{
+			GlanceContent{
+				Status: GlanceStatus{Type: "lozenge", Value: AttributeValue{Type: "default", Label: "something"}},
+				Label:  AttributeValue{Type: "html", Value: "hello"},
+			},
+			`{"status":{"type":"lozenge","value":{"type":"default","label":"something"}},"label":{"type":"html","value":"hello"}}`,
+		},
+	}
+
+	for _, tt := range gcTests {
+		encoded, err := json.Marshal(tt.gc)
+		if err != nil {
+			t.Errorf("Encoding of GlanceContent failed")
+		}
+
+		if string(encoded) != tt.expected {
+			t.Fatalf("Encoding of GlanceContent failed: %s", encoded)
+		}
+	}
+}
+
+func TestGlanceStatusJSONEncodeWithString(t *testing.T) {
+	gsTests := []struct {
+		gs       GlanceStatus
+		expected string
+	}{
+		{GlanceStatus{Type: "lozenge", Value: AttributeValue{Type: "default", Label: "something"}},
+			`{"type":"lozenge","value":{"type":"default","label":"something"}}`},
+		{GlanceStatus{Type: "icon", Value: Icon{URL: "z", URL2x: "x"}},
+			`{"type":"icon","value":{"url":"z","url@2x":"x"}}`},
+	}
+
+	for _, tt := range gsTests {
+		encoded, err := json.Marshal(tt.gs)
+		if err != nil {
+			t.Errorf("Encoding of GlanceStatus failed")
+		}
+
+		if string(encoded) != tt.expected {
+			t.Fatalf("Encoding of GlanceStatus failed: %s", encoded)
+		}
+	}
+}

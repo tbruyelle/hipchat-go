@@ -195,7 +195,9 @@ type Attribute struct {
 type AttributeValue struct {
 	URL   string `json:"url,omitempty"`
 	Style string `json:"style,omitempty"`
-	Label string `json:"label"`
+	Type  string `json:"type,omitempty"`
+	Label string `json:"label,omitempty"`
+	Value string `json:"value,omitempty"`
 	Icon  *Icon  `json:"icon,omitempty"`
 }
 
@@ -239,6 +241,30 @@ type SetTopicRequest struct {
 // InviteRequest represents a hipchat invite to room request
 type InviteRequest struct {
 	Reason string `json:"reason"`
+}
+
+// GlanceRequest represents a HipChat room ui glance update request
+type GlanceRequest struct {
+	Glance []*Glance `json:"glance"`
+}
+
+// Glance represents a component of a HipChat room ui glance update
+type Glance struct {
+	Key     string        `json:"key"`
+	Content GlanceContent `json:"content"`
+}
+
+// GlanceContent is a component of a Glance
+type GlanceContent struct {
+	Status   GlanceStatus   `json:"status"`
+	Metadata interface{}    `json:"metadata,omitempty"`
+	Label    AttributeValue `json:"label"` // AttributeValue{Type, Label}
+}
+
+// GlanceStatus is a status field component of a GlanceContent
+type GlanceStatus struct {
+	Type  string      `json:"type"`  // "lozenge" | "icon"
+	Value interface{} `json:"value"` // AttributeValue{Type, Label} | Icon{URL, URL2x}
 }
 
 // AddAttribute adds an attribute to a Card
@@ -457,6 +483,18 @@ func (r *RoomService) Invite(room string, user string, reason string) (*http.Res
 	reasonReq := &InviteRequest{Reason: reason}
 
 	req, err := r.client.NewRequest("POST", fmt.Sprintf("room/%s/invite/%s", room, user), nil, reasonReq)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.client.Do(req, nil)
+}
+
+// Glance sends a glance update to the room specified by the id.
+//
+// HipChat API docs: https://www.hipchat.com/docs/apiv2/method/room_addon_ui_update
+func (r *RoomService) Glance(id string, glanceReq *GlanceRequest) (*http.Response, error) {
+	req, err := r.client.NewRequest("POST", fmt.Sprintf("addon/ui/room/%s", id), nil, glanceReq)
 	if err != nil {
 		return nil, err
 	}
