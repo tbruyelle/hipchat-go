@@ -189,3 +189,26 @@ func TestUserList(t *testing.T) {
 		t.Errorf("User.List returned %+v, want %+v", users, want)
 	}
 }
+
+func TestUpdate(t *testing.T) {
+	setup()
+	defer teardown()
+
+	pArgs := UpdateUserPresenceRequest{Status: "status", Show: UserPresenceShowDnd}
+	userArgs := &UpdateUserRequest{Name: "n", Presence: pArgs, MentionName: "mn", Email: "e"}
+
+	mux.HandleFunc("/user/@FirstL", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "PUT")
+		v := new(UpdateUserRequest)
+		json.NewDecoder(r.Body).Decode(v)
+
+		if !reflect.DeepEqual(v, userArgs) {
+			t.Errorf("Request body %+v, want %+v", v, userArgs)
+		}
+	})
+
+	_, err := client.User.Update("@FirstL", userArgs)
+	if err != nil {
+		t.Fatalf("User.Update returns an error %v", err)
+	}
+}

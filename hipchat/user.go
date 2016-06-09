@@ -20,6 +20,34 @@ type UserPresence struct {
 	IsOnline bool   `json:"is_online"`
 }
 
+const (
+	// UserPresenceShowAway show status away
+	UserPresenceShowAway = "away"
+
+	// UserPresenceShowChat show status available to chat
+	UserPresenceShowChat = "chat"
+
+	// UserPresenceShowDnd show status do not disturb
+	UserPresenceShowDnd = "dnd"
+
+	// UserPresenceShowXa show status xa?
+	UserPresenceShowXa = "xa"
+)
+
+// UpdateUserRequest represents a HipChat user update request body.
+type UpdateUserRequest struct {
+	Name        string                    `json:"name"`
+	Presence    UpdateUserPresenceRequest `json:"presence"`
+	MentionName string                    `json:"mention_name"`
+	Email       string                    `json:"email"`
+}
+
+// UpdateUserPresenceRequest represents the HipChat user's presence update request body.
+type UpdateUserPresenceRequest struct {
+	Status string `json:"status"`
+	Show   string `json:"show"`
+}
+
 // User represents the HipChat user.
 type User struct {
 	XmppJid      string       `json:"xmpp_jid"`
@@ -111,4 +139,16 @@ func (u *UserService) List(opt *UserListOptions) ([]User, *http.Response, error)
 		return nil, resp, err
 	}
 	return users.Items, resp, nil
+}
+
+// Update a user
+//
+// HipChat API docs: https://www.hipchat.com/docs/apiv2/method/update_user
+func (u *UserService) Update(id string, user *UpdateUserRequest) (*http.Response, error) {
+	req, err := u.client.NewRequest("PUT", fmt.Sprintf("user/%s", id), nil, user)
+	if err != nil {
+		return nil, err
+	}
+
+	return u.client.Do(req, nil)
 }
