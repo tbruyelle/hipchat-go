@@ -3,6 +3,7 @@ package hipchat
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 )
@@ -265,6 +266,64 @@ type GlanceContent struct {
 type GlanceStatus struct {
 	Type  string      `json:"type"`  // "lozenge" | "icon"
 	Value interface{} `json:"value"` // AttributeValue{Type, Label} | Icon{URL, URL2x}
+}
+
+// UnmarshalJSON deserializes a JSON-serialized GlanceStatus
+func (gs *GlanceStatus) UnmarshalJSON(data []byte) error {
+	// Compact the JSON to make it easier to process below
+	buffer := bytes.NewBuffer([]byte{})
+	err := json.Compact(buffer, data)
+	if err != nil {
+		return err
+	}
+	data = buffer.Bytes()
+
+	// Since Value can be either an AttributeValue or an Icon, we
+	// must check and deserialize appropriately
+	obj := make(map[string]interface{})
+
+	err = json.Unmarshal(data, &obj)
+	if err != nil {
+		return err
+	}
+
+	for _, field := range []string{"type", "value"} {
+		if obj[field] == nil {
+			return errors.New(fmt.Sprintf("missing %s field", field))
+		}
+	}
+
+	gs.Type = obj["type"].(string)
+	val := obj["value"].(map[string]interface{})
+
+	valueMap := map[string][]string{
+		"lozenge": []string{"type", "label"},
+		"icon":    []string{"url", "url@2x"},
+	}
+
+	if valueMap[gs.Type] == nil {
+		return errors.New(fmt.Sprintf("invalid GlanceStatus type: %s", gs.Type))
+	}
+
+	for _, field := range valueMap[gs.Type] {
+		if val[field] == nil {
+			return errors.New(fmt.Sprintf("%s missing %s field", gs.Type, field))
+		}
+		_, ok := val[field].(string)
+		if !ok {
+			return errors.New(fmt.Sprintf("could not convert %s field %s to string", gs.Type, field))
+		}
+	}
+
+	// Can safely perform type coercion
+	switch gs.Type {
+	case "lozenge":
+		gs.Value = AttributeValue{Type: val["type"].(string), Label: val["label"].(string)}
+	case "icon":
+		gs.Value = Icon{URL: val["url"].(string), URL2x: val["url@2x"].(string)}
+	}
+
+	return nil
 }
 
 // AddAttribute adds an attribute to a Card

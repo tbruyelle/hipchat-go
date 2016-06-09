@@ -334,6 +334,38 @@ func TestRoomLatest(t *testing.T) {
 	}
 }
 
+func TestRoomGlance(t *testing.T) {
+	setup()
+	defer teardown()
+
+	args := &GlanceRequest{
+		Glance: []*Glance{
+			&Glance{
+				Key: "abc",
+				Content: GlanceContent{
+					Status: GlanceStatus{Type: "lozenge", Value: AttributeValue{Type: "default", Label: "something"}},
+					Label:  AttributeValue{Type: "html", Value: "hello"},
+				},
+			},
+		},
+	}
+
+	mux.HandleFunc("/addon/ui/room/1", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "POST")
+		v := new(GlanceRequest)
+		json.NewDecoder(r.Body).Decode(v)
+		if !reflect.DeepEqual(v, args) {
+			t.Errorf("Request body %+v, want %+v", v, args)
+		}
+		w.WriteHeader(http.StatusNoContent)
+	})
+
+	_, err := client.Room.Glance("1", args)
+	if err != nil {
+		t.Fatalf("Room.Glance returns an error %v", err)
+	}
+}
+
 func TestSetTopic(t *testing.T) {
 	setup()
 	defer teardown()
@@ -496,6 +528,42 @@ func TestGlanceContentJSONEncodeWithString(t *testing.T) {
 	}
 }
 
+func TestGlanceContentJSONDecodeWithObject(t *testing.T) {
+	gcTests := []struct {
+		gc      GlanceContent
+		encoded string
+	}{
+		{
+			GlanceContent{
+				Status: GlanceStatus{Type: "lozenge", Value: AttributeValue{Type: "default", Label: "something"}},
+				Label:  AttributeValue{Type: "html", Value: "hello"},
+			},
+			`{"status":{"type":"lozenge","value":{"type":"default","label":"something"}},"label":{"type":"html","value":"hello"}}`,
+		},
+	}
+
+	for _, tt := range gcTests {
+		var actual GlanceContent
+
+		err := json.Unmarshal([]byte(tt.encoded), &actual)
+		if err != nil {
+			t.Errorf("Decoding of GlanceContent failed: %v", err)
+		}
+
+		if actual.Status != tt.gc.Status {
+			t.Fatalf("Unexpected GlanceContent.Status: %v", actual.Status)
+		}
+
+		if actual.Label != tt.gc.Label {
+			t.Fatalf("Unexpected GlanceStatus.Label: %v", actual.Label)
+		}
+
+		if actual.Metadata != tt.gc.Metadata {
+			t.Fatalf("Unexpected GlanceStatus.Metadata %v", actual.Metadata)
+		}
+	}
+}
+
 func TestGlanceStatusJSONEncodeWithString(t *testing.T) {
 	gsTests := []struct {
 		gs       GlanceStatus
@@ -515,6 +583,35 @@ func TestGlanceStatusJSONEncodeWithString(t *testing.T) {
 
 		if string(encoded) != tt.expected {
 			t.Fatalf("Encoding of GlanceStatus failed: %s", encoded)
+		}
+	}
+}
+
+func TestGlanceStatusJSONDecodeWithObject(t *testing.T) {
+	gsTests := []struct {
+		gs      GlanceStatus
+		encoded string
+	}{
+		{GlanceStatus{Type: "lozenge", Value: AttributeValue{Type: "default", Label: "something"}},
+			`{"type":"lozenge","value":{"type":"default","label":"something"}}`},
+		{GlanceStatus{Type: "icon", Value: Icon{URL: "z", URL2x: "x"}},
+			`{"type":"icon","value":{"url":"z","url@2x":"x"}}`},
+	}
+
+	for _, tt := range gsTests {
+		var actual GlanceStatus
+
+		err := json.Unmarshal([]byte(tt.encoded), &actual)
+		if err != nil {
+			t.Errorf("Decoding of GlanceStatus failed: %v", err)
+		}
+
+		if actual.Type != tt.gs.Type {
+			t.Fatalf("Unexpected GlanceStatus.Type: %v", actual.Type)
+		}
+
+		if actual.Value != tt.gs.Value {
+			t.Fatalf("Unexpected GlanceStatus.Value: %v", actual.Value)
 		}
 	}
 }
