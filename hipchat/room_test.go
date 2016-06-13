@@ -333,14 +333,59 @@ func TestRoomLatest(t *testing.T) {
 		t.Errorf("Room.Latest returned %+v, want %+v", hist, want)
 	}
 }
-
-func TestRoomGlance(t *testing.T) {
+func TestRoomGlanceCreate(t *testing.T) {
 	setup()
 	defer teardown()
 
 	args := &GlanceRequest{
-		Glance: []*Glance{
-			&Glance{
+		Key:      "abc",
+		Name:     GlanceName{Value: "Test Glance"},
+		Target:   "target",
+		QueryURL: "qu",
+		Icon:     Icon{URL: "i", URL2x: "i"},
+	}
+
+	mux.HandleFunc(fmt.Sprintf("/room/1/extension/glance/%s", args.Key), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "PUT")
+		v := new(GlanceRequest)
+		json.NewDecoder(r.Body).Decode(v)
+		if !reflect.DeepEqual(v, args) {
+			t.Errorf("Request body %+v, want %+v", v, args)
+		}
+		w.WriteHeader(http.StatusNoContent)
+	})
+
+	_, err := client.Room.CreateGlance("1", args)
+	if err != nil {
+		t.Fatalf("Room.CreateGlance returns an error %v", err)
+	}
+}
+
+func TestRoomGlanceDelete(t *testing.T) {
+	setup()
+	defer teardown()
+
+	args := &GlanceRequest{
+		Key: "abc",
+	}
+
+	mux.HandleFunc(fmt.Sprintf("/room/1/extension/glance/%s", args.Key), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "DELETE")
+	})
+
+	_, err := client.Room.DeleteGlance("1", args)
+	if err != nil {
+		t.Fatalf("Room.DeleteGlance returns an error %v", err)
+	}
+}
+
+func TestRoomGlanceUpdate(t *testing.T) {
+	setup()
+	defer teardown()
+
+	args := &GlanceUpdateRequest{
+		Glance: []*GlanceUpdate{
+			&GlanceUpdate{
 				Key: "abc",
 				Content: GlanceContent{
 					Status: GlanceStatus{Type: "lozenge", Value: AttributeValue{Type: "default", Label: "something"}},
@@ -352,7 +397,7 @@ func TestRoomGlance(t *testing.T) {
 
 	mux.HandleFunc("/addon/ui/room/1", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")
-		v := new(GlanceRequest)
+		v := new(GlanceUpdateRequest)
 		json.NewDecoder(r.Body).Decode(v)
 		if !reflect.DeepEqual(v, args) {
 			t.Errorf("Request body %+v, want %+v", v, args)
@@ -360,9 +405,9 @@ func TestRoomGlance(t *testing.T) {
 		w.WriteHeader(http.StatusNoContent)
 	})
 
-	_, err := client.Room.Glance("1", args)
+	_, err := client.Room.UpdateGlance("1", args)
 	if err != nil {
-		t.Fatalf("Room.Glance returns an error %v", err)
+		t.Fatalf("Room.UpdateGlance returns an error %v", err)
 	}
 }
 
@@ -478,10 +523,10 @@ func TestCardDescriptionJSONDecodeWithObject(t *testing.T) {
 	}
 }
 
-func TestGlanceRequestJSONEncodeWithString(t *testing.T) {
-	gr := GlanceRequest{
-		Glance: []*Glance{
-			&Glance{
+func TestGlanceUpdateRequestJSONEncodeWithString(t *testing.T) {
+	gr := GlanceUpdateRequest{
+		Glance: []*GlanceUpdate{
+			&GlanceUpdate{
 				Key: "abc",
 				Content: GlanceContent{
 					Status: GlanceStatus{Type: "lozenge", Value: AttributeValue{Type: "default", Label: "something"}},
