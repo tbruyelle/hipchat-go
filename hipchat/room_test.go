@@ -539,11 +539,11 @@ func TestGlanceUpdateRequestJSONEncodeWithString(t *testing.T) {
 
 	encoded, err := json.Marshal(gr)
 	if err != nil {
-		t.Errorf("Encoding of GlanceRequest failed")
+		t.Errorf("Encoding of GlanceUpdateRequest failed")
 	}
 
 	if string(encoded) != expected {
-		t.Fatalf("Encoding of GlanceRequest failed: %s", encoded)
+		t.Fatalf("Encoding of GlanceUpdateRequest failed: %s", encoded)
 	}
 }
 
