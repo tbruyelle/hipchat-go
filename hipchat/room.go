@@ -73,7 +73,7 @@ type RoomLinks struct {
 
 // NotificationRequest represents a HipChat room notification request.
 type NotificationRequest struct {
-	Color         string `json:"color,omitempty"`
+	Color         Color  `json:"color,omitempty"`
 	Message       string `json:"message,omitempty"`
 	Notify        bool   `json:"notify,omitempty"`
 	MessageFormat string `json:"message_format,omitempty"`
