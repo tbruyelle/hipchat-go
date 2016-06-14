@@ -100,7 +100,7 @@ func TestRoomNotification(t *testing.T) {
 	setup()
 	defer teardown()
 
-	args := &NotificationRequest{Message: "m", MessageFormat: "text"}
+	args := &NotificationRequest{Color: "red", Message: "m", MessageFormat: "text"}
 
 	mux.HandleFunc("/room/1/notification", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "POST")
