@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/google/go-querystring/query"
 	"io"
 	"io/ioutil"
 	"mime"
@@ -19,6 +18,8 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/google/go-querystring/query"
 )
 
 const (
@@ -64,6 +65,17 @@ type ListOptions struct {
 	// For paginated results, reprensents the number of items per page.
 	MaxResults int `url:"max-results,omitempty"`
 }
+
+type Color string
+
+const (
+	ColorYellow Color = "yellow"
+	ColorGreen  Color = "green"
+	ColorRed    Color = "red"
+	ColorPurple Color = "purple"
+	ColorGray   Color = "gray"
+	ColorRandom Color = "random"
+)
 
 // AuthTest can be set to true to test an auth token.
 //
