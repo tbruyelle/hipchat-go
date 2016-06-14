@@ -333,6 +333,83 @@ func TestRoomLatest(t *testing.T) {
 		t.Errorf("Room.Latest returned %+v, want %+v", hist, want)
 	}
 }
+func TestRoomGlanceCreate(t *testing.T) {
+	setup()
+	defer teardown()
+
+	args := &GlanceRequest{
+		Key:      "abc",
+		Name:     GlanceName{Value: "Test Glance"},
+		Target:   "target",
+		QueryURL: "qu",
+		Icon:     Icon{URL: "i", URL2x: "i"},
+	}
+
+	mux.HandleFunc(fmt.Sprintf("/room/1/extension/glance/%s", args.Key), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "PUT")
+		v := new(GlanceRequest)
+		json.NewDecoder(r.Body).Decode(v)
+		if !reflect.DeepEqual(v, args) {
+			t.Errorf("Request body %+v, want %+v", v, args)
+		}
+		w.WriteHeader(http.StatusNoContent)
+	})
+
+	_, err := client.Room.CreateGlance("1", args)
+	if err != nil {
+		t.Fatalf("Room.CreateGlance returns an error %v", err)
+	}
+}
+
+func TestRoomGlanceDelete(t *testing.T) {
+	setup()
+	defer teardown()
+
+	args := &GlanceRequest{
+		Key: "abc",
+	}
+
+	mux.HandleFunc(fmt.Sprintf("/room/1/extension/glance/%s", args.Key), func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "DELETE")
+	})
+
+	_, err := client.Room.DeleteGlance("1", args)
+	if err != nil {
+		t.Fatalf("Room.DeleteGlance returns an error %v", err)
+	}
+}
+
+func TestRoomGlanceUpdate(t *testing.T) {
+	setup()
+	defer teardown()
+
+	args := &GlanceUpdateRequest{
+		Glance: []*GlanceUpdate{
+			&GlanceUpdate{
+				Key: "abc",
+				Content: GlanceContent{
+					Status: GlanceStatus{Type: "lozenge", Value: AttributeValue{Type: "default", Label: "something"}},
+					Label:  AttributeValue{Type: "html", Value: "hello"},
+				},
+			},
+		},
+	}
+
+	mux.HandleFunc("/addon/ui/room/1", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "POST")
+		v := new(GlanceUpdateRequest)
+		json.NewDecoder(r.Body).Decode(v)
+		if !reflect.DeepEqual(v, args) {
+			t.Errorf("Request body %+v, want %+v", v, args)
+		}
+		w.WriteHeader(http.StatusNoContent)
+	})
+
+	_, err := client.Room.UpdateGlance("1", args)
+	if err != nil {
+		t.Fatalf("Room.UpdateGlance returns an error %v", err)
+	}
+}
 
 func TestSetTopic(t *testing.T) {
 	setup()
@@ -443,5 +520,143 @@ func TestCardDescriptionJSONDecodeWithObject(t *testing.T) {
 
 	if actual.Format != expected.Format {
 		t.Fatalf("Unexpected CardDescription.Format: %v", actual.Format)
+	}
+}
+
+func TestGlanceUpdateRequestJSONEncodeWithString(t *testing.T) {
+	gr := GlanceUpdateRequest{
+		Glance: []*GlanceUpdate{
+			&GlanceUpdate{
+				Key: "abc",
+				Content: GlanceContent{
+					Status: GlanceStatus{Type: "lozenge", Value: AttributeValue{Type: "default", Label: "something"}},
+					Label:  AttributeValue{Type: "html", Value: "hello"},
+				},
+			},
+		},
+	}
+	expected := `{"glance":[{"key":"abc","content":{"status":{"type":"lozenge","value":{"type":"default","label":"something"}},"label":{"type":"html","value":"hello"}}}]}`
+
+	encoded, err := json.Marshal(gr)
+	if err != nil {
+		t.Errorf("Encoding of GlanceUpdateRequest failed")
+	}
+
+	if string(encoded) != expected {
+		t.Fatalf("Encoding of GlanceUpdateRequest failed: %s", encoded)
+	}
+}
+
+func TestGlanceContentJSONEncodeWithString(t *testing.T) {
+	gcTests := []struct {
+		gc       GlanceContent
+		expected string
+	}{
+		{
+			GlanceContent{
+				Status: GlanceStatus{Type: "lozenge", Value: AttributeValue{Type: "default", Label: "something"}},
+				Label:  AttributeValue{Type: "html", Value: "hello"},
+			},
+			`{"status":{"type":"lozenge","value":{"type":"default","label":"something"}},"label":{"type":"html","value":"hello"}}`,
+		},
+	}
+
+	for _, tt := range gcTests {
+		encoded, err := json.Marshal(tt.gc)
+		if err != nil {
+			t.Errorf("Encoding of GlanceContent failed")
+		}
+
+		if string(encoded) != tt.expected {
+			t.Fatalf("Encoding of GlanceContent failed: %s", encoded)
+		}
+	}
+}
+
+func TestGlanceContentJSONDecodeWithObject(t *testing.T) {
+	gcTests := []struct {
+		gc      GlanceContent
+		encoded string
+	}{
+		{
+			GlanceContent{
+				Status: GlanceStatus{Type: "lozenge", Value: AttributeValue{Type: "default", Label: "something"}},
+				Label:  AttributeValue{Type: "html", Value: "hello"},
+			},
+			`{"status":{"type":"lozenge","value":{"type":"default","label":"something"}},"label":{"type":"html","value":"hello"}}`,
+		},
+	}
+
+	for _, tt := range gcTests {
+		var actual GlanceContent
+
+		err := json.Unmarshal([]byte(tt.encoded), &actual)
+		if err != nil {
+			t.Errorf("Decoding of GlanceContent failed: %v", err)
+		}
+
+		if actual.Status != tt.gc.Status {
+			t.Fatalf("Unexpected GlanceContent.Status: %v", actual.Status)
+		}
+
+		if actual.Label != tt.gc.Label {
+			t.Fatalf("Unexpected GlanceStatus.Label: %v", actual.Label)
+		}
+
+		if actual.Metadata != tt.gc.Metadata {
+			t.Fatalf("Unexpected GlanceStatus.Metadata %v", actual.Metadata)
+		}
+	}
+}
+
+func TestGlanceStatusJSONEncodeWithString(t *testing.T) {
+	gsTests := []struct {
+		gs       GlanceStatus
+		expected string
+	}{
+		{GlanceStatus{Type: "lozenge", Value: AttributeValue{Type: "default", Label: "something"}},
+			`{"type":"lozenge","value":{"type":"default","label":"something"}}`},
+		{GlanceStatus{Type: "icon", Value: Icon{URL: "z", URL2x: "x"}},
+			`{"type":"icon","value":{"url":"z","url@2x":"x"}}`},
+	}
+
+	for _, tt := range gsTests {
+		encoded, err := json.Marshal(tt.gs)
+		if err != nil {
+			t.Errorf("Encoding of GlanceStatus failed")
+		}
+
+		if string(encoded) != tt.expected {
+			t.Fatalf("Encoding of GlanceStatus failed: %s", encoded)
+		}
+	}
+}
+
+func TestGlanceStatusJSONDecodeWithObject(t *testing.T) {
+	gsTests := []struct {
+		gs      GlanceStatus
+		encoded string
+	}{
+		{GlanceStatus{Type: "lozenge", Value: AttributeValue{Type: "default", Label: "something"}},
+			`{"type":"lozenge","value":{"type":"default","label":"something"}}`},
+		{GlanceStatus{Type: "icon", Value: Icon{URL: "z", URL2x: "x"}},
+			`{"type":"icon","value":{"url":"z","url@2x":"x"}}`},
+	}
+
+	for _, tt := range gsTests {
+		var actual GlanceStatus
+
+		err := json.Unmarshal([]byte(tt.encoded), &actual)
+		if err != nil {
+			t.Errorf("Decoding of GlanceStatus failed: %v", err)
+		}
+
+		if actual.Type != tt.gs.Type {
+			t.Fatalf("Unexpected GlanceStatus.Type: %v", actual.Type)
+		}
+
+		if actual.Value != tt.gs.Value {
+			t.Fatalf("Unexpected GlanceStatus.Value: %v", actual.Value)
+		}
 	}
 }
