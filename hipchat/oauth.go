@@ -53,8 +53,7 @@ func (c *Client) GenerateToken(credentials ClientCredentials, scopes []string) (
 	req.SetBasicAuth(credentials.ClientID, credentials.ClientSecret)
 	req.Header.Set("Content-type", "application/x-www-form-urlencoded")
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := c.client.Do(req)
 
 	if err != nil {
 		return nil, resp, err
