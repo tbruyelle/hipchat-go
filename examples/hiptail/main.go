@@ -25,7 +25,7 @@ func main() {
 		return
 	}
 	c := hipchat.NewClient(*token)
-	hist, resp, err := c.Room.History(*roomId, &hipchat.HistoryRequest{})
+	hist, resp, err := c.Room.History(*roomId, &hipchat.HistoryOptions{})
 	if err != nil {
 		fmt.Printf("Error during room history req %q\n", err)
 		fmt.Printf("Server returns %+v\n", resp)
