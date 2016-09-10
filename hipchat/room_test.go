@@ -51,6 +51,12 @@ func TestRoomList(t *testing.T) {
 
 	mux.HandleFunc("/room", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
+		testFormValues(t, r, values{
+			"start-index":      "1",
+			"max-results":      "10",
+			"include-private":  "true",
+			"include-archived": "true",
+		})
 		fmt.Fprintf(w, `
 		{
 			"items": [{"id":1,"name":"n"}],
@@ -60,8 +66,8 @@ func TestRoomList(t *testing.T) {
 		}`)
 	})
 	want := &Rooms{Items: []Room{{ID: 1, Name: "n"}}, StartIndex: 1, MaxResults: 1, Links: PageLinks{Links: Links{Self: "s"}}}
-
-	rooms, _, err := client.Room.List()
+	opt := &RoomsListOptions{ListOptions{1, 10}, true, true}
+	rooms, _, err := client.Room.List(opt)
 	if err != nil {
 		t.Fatalf("Room.List returns an error %v", err)
 	}

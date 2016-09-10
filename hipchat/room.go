@@ -356,11 +356,21 @@ func (c *Card) AddAttribute(mainLabel, subLabel, url, iconURL string) {
 	c.Attributes = append(c.Attributes, attr)
 }
 
+// RoomsListOptions specifies the optional parameters of the RoomService.List
+// method.
+type RoomsListOptions struct {
+	ListOptions
+
+	// The type of emoticons to get (global, group or all)
+	IncludePrivate  bool `url:"include-private,omitempty"`
+	IncludeArchived bool `url:"include-archived,omitempty"`
+}
+
 // List returns all the rooms authorized.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/get_all_rooms
-func (r *RoomService) List() (*Rooms, *http.Response, error) {
-	req, err := r.client.NewRequest("GET", "room", nil, nil)
+func (r *RoomService) List(opt *RoomsListOptions) (*Rooms, *http.Response, error) {
+	req, err := r.client.NewRequest("GET", "room", opt, nil)
 	if err != nil {
 		return nil, nil, err
 	}
