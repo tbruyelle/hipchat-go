@@ -26,11 +26,17 @@ const (
 	defaultBaseURL = "https://api.hipchat.com/v2/"
 )
 
+// HTTPClient is an interface that allows overriding the http behavior
+// by providing custom http clients
+type HTTPClient interface {
+	Do(req *http.Request) (res *http.Response, err error)
+}
+
 // Client manages the communication with the HipChat API.
 type Client struct {
 	authToken string
 	BaseURL   *url.URL
-	client    *http.Client
+	client    HTTPClient
 	// Room gives access to the /room part of the API.
 	Room *RoomService
 	// User gives access to the /user part of the API.
@@ -107,7 +113,7 @@ func NewClient(authToken string) *Client {
 
 // SetHTTPClient sets the HTTP client for performing API requests.
 // If a nil httpClient is provided, http.DefaultClient will be used.
-func (c *Client) SetHTTPClient(httpClient *http.Client) {
+func (c *Client) SetHTTPClient(httpClient HTTPClient) {
 	if httpClient == nil {
 		c.client = http.DefaultClient
 	} else {
