@@ -1,4 +1,4 @@
-# hipchat-go 
+# hipchat-go
 
 Go client library for the [HipChat API v2](https://www.hipchat.com/docs/apiv2).
 
@@ -18,7 +18,8 @@ Build a new client, then use the `client.Room` service to spam all the rooms you
 ```go
 c := hipchat.NewClient("<your AuthToken here>")
 
-rooms, _, err := c.Room.List()
+opt := &hipchat.RoomsListOptions{IncludePrivate:  true, IncludeArchived: true}
+rooms, _, err := c.Room.List(opt)
 if err != nil {
 	panic(err)
 }

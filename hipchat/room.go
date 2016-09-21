@@ -361,8 +361,10 @@ func (c *Card) AddAttribute(mainLabel, subLabel, url, iconURL string) {
 type RoomsListOptions struct {
 	ListOptions
 
-	// The type of emoticons to get (global, group or all)
-	IncludePrivate  bool `url:"include-private,omitempty"`
+	// Include private rooms in the result, API defaults to true
+	IncludePrivate bool `url:"include-private,omitempty"`
+
+	// Include archived rooms in the result, API defaults to false
 	IncludeArchived bool `url:"include-archived,omitempty"`
 }
 

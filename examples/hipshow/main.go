@@ -8,7 +8,10 @@ import (
 )
 
 var (
-	token = flag.String("token", "", "The HipChat AuthToken")
+	token           = flag.String("token", "", "The HipChat AuthToken")
+	maxResults      = flag.Int("maxResults", 5, "Max results per request")
+	includePrivate  = flag.Bool("includePrivate", false, "Include private rooms?")
+	includeArchived = flag.Bool("includeArchived", false, "Include archived rooms?")
 )
 
 func main() {
@@ -19,14 +22,14 @@ func main() {
 	}
 	c := hipchat.NewClient(*token)
 	startIndex := 0
-	maxResults := 5
+	totalRequests := 0
 	var allRooms []hipchat.Room
 
 	for {
 		opt := &hipchat.RoomsListOptions{
-			ListOptions:     hipchat.ListOptions{StartIndex: startIndex, MaxResults: maxResults},
-			IncludePrivate:  true,
-			IncludeArchived: true}
+			ListOptions:     hipchat.ListOptions{StartIndex: startIndex, MaxResults: *maxResults},
+			IncludePrivate:  *includePrivate,
+			IncludeArchived: *includeArchived}
 
 		rooms, resp, err := c.Room.List(opt)
 
@@ -36,15 +39,18 @@ func main() {
 			return
 		}
 
+		totalRequests++
+
 		allRooms = append(allRooms, rooms.Items...)
 		if rooms.Links.Next != "" {
-			startIndex += maxResults
+			startIndex += *maxResults
 		} else {
 			break
 		}
 	}
 
-	fmt.Printf("Your group has %d rooms:\n", len(allRooms))
+	fmt.Printf("Your group has %d rooms, it took %d requests to retrieve all of them:\n",
+		len(allRooms), totalRequests)
 	for _, r := range allRooms {
 		fmt.Printf("%d %s \n", r.ID, r.Name)
 	}
