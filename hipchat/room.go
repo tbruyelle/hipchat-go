@@ -25,7 +25,7 @@ type Room struct {
 	ID                int            `json:"id"`
 	Links             RoomLinks      `json:"links"`
 	Name              string         `json:"name"`
-	XmppJid           string         `json:"xmpp_jid"`
+	XMPPJid           string         `json:"xmpp_jid"`
 	Statistics        RoomStatistics `json:"statistics"`
 	Created           string         `json:"created"`
 	IsArchived        bool           `json:"is_archived"`

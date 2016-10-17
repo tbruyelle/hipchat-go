@@ -50,7 +50,7 @@ type UpdateUserPresenceRequest struct {
 
 // User represents the HipChat user.
 type User struct {
-	XmppJid      string       `json:"xmpp_jid"`
+	XMPPJid      string       `json:"xmpp_jid"`
 	IsDeleted    bool         `json:"is_deleted"`
 	Name         string       `json:"name"`
 	LastActive   string       `json:"last_active"`

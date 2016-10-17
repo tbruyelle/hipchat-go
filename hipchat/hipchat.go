@@ -72,14 +72,22 @@ type ListOptions struct {
 	MaxResults int `url:"max-results,omitempty"`
 }
 
+// Color is set of hard-coded string values for the HipChat API for notifications.
+// cf: https://www.hipchat.com/docs/apiv2/method/send_room_notification
 type Color string
 
 const (
+	// ColorYellow is the color yellow
 	ColorYellow Color = "yellow"
+	// ColorGreen is the color green
 	ColorGreen  Color = "green"
+	// ColorRed is the color red
 	ColorRed    Color = "red"
+	// ColorPurple is the color purple
 	ColorPurple Color = "purple"
+	// ColorGray is the color gray
 	ColorGray   Color = "gray"
+	// ColorRandom is the random "surprise me!" color
 	ColorRandom Color = "random"
 )
 
