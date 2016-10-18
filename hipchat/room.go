@@ -513,8 +513,8 @@ type HistoryOptions struct {
 	Reverse bool `url:"reverse,omitempty"`
 
 	// Either the earliest date to fetch history for the ISO-8601 format string,
-	// or 'null' to disable this filter.
-	// to be effective, API call requires Date also be filled in with an ISO-8601 format string.
+	// or leave blank to disable this filter.
+	// to be effective, the API call requires Date also be filled in with an ISO-8601 format string.
 	EndDate string `url:"end-date,omitempty"`
 
 	// Include records about deleted messages into results (body of a message isn't returned).  Set to 'true'.
