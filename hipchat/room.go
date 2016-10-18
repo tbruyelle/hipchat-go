@@ -511,6 +511,14 @@ type HistoryOptions struct {
 	// Reverse the output such that the oldest message is first.
 	// For consistent paging, set to 'false'.
 	Reverse bool `url:"reverse,omitempty"`
+
+	// Either the earliest date to fetch history for the ISO-8601 format string,
+	// or 'null' to disable this filter.
+	// to be effective, API call requires Date also be filled in with an ISO-8601 format string.
+	EndDate string `url:"end-date,omitempty"`
+
+	// Include records about deleted messages into results (body of a message isn't returned).  Set to 'true'.
+	IncludeDeleted bool `url:"include_deleted,omitempty"`
 }
 
 // History fetches a room's chat history.
