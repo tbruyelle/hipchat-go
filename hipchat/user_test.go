@@ -111,7 +111,7 @@ func TestUserView(t *testing.T) {
 				"xmpp_jid": "1@chat.hipchat.com"
 			}`)
 	})
-	want := &User{XmppJid: "1@chat.hipchat.com",
+	want := &User{XMPPJid: "1@chat.hipchat.com",
 		IsDeleted:    false,
 		Name:         "First Last",
 		LastActive:   "1421029691",

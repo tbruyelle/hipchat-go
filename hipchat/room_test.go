@@ -255,11 +255,13 @@ func TestRoomHistory(t *testing.T) {
 	mux.HandleFunc("/room/1/history", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
 		testFormValues(t, r, values{
-			"start-index": "1",
-			"max-results": "100",
-			"date":        "date",
-			"timezone":    "tz",
-			"reverse":     "true",
+			"start-index":     "1",
+			"max-results":     "100",
+			"date":            "date",
+			"timezone":        "tz",
+			"reverse":         "true",
+			"end-date":        "end-date",
+			"include_deleted": "true",
 		})
 		fmt.Fprintf(w, `
 		{
@@ -283,7 +285,7 @@ func TestRoomHistory(t *testing.T) {
 	})
 
 	opt := &HistoryOptions{
-		ListOptions{1, 100}, "date", "tz", true,
+		ListOptions{1, 100}, "date", "tz", true, "end-date", true,
 	}
 	hist, _, err := client.Room.History("1", opt)
 	if err != nil {
