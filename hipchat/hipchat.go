@@ -228,7 +228,10 @@ func (c *Client) NewFileUploadRequest(method, urlStr string, v interface{}) (*ht
 		"--hipfileboundary\n"
 
 	b := &bytes.Buffer{}
-	b.Write([]byte(body))
+	_, err = b.Write([]byte(body))
+	if err != nil {
+		return nil, err
+	}
 
 	req, err := http.NewRequest(method, u.String(), b)
 	if err != nil {
@@ -263,7 +266,7 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 		if v != nil {
 			defer resp.Body.Close()
 			if w, ok := v.(io.Writer); ok {
-				io.Copy(w, resp.Body)
+				_, err = io.Copy(w, resp.Body)
 			} else {
 				err = json.NewDecoder(resp.Body).Decode(v)
 			}
