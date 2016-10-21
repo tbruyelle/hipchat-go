@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"math/rand"
 	"mime"
 	"net/http"
 	"net/url"
@@ -18,6 +19,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/google/go-querystring/query"
 )
@@ -32,11 +34,25 @@ type HTTPClient interface {
 	Do(req *http.Request) (res *http.Response, err error)
 }
 
+// LimitData contains the latest Rate Limit or Flood Control data sent with every API call response.
+type LimitData struct {
+	// Limit is the number of API calls per period of time
+	Limit int
+	// Remaining is the current number of API calls that can be done before the ResetTime
+	Remaining int
+	// ResetTime is the UTC time in Unix epoch format for when the full Limit of API calls will be restored.
+	ResetTime int
+}
+
 // Client manages the communication with the HipChat API.
 type Client struct {
 	authToken string
 	BaseURL   *url.URL
 	client    HTTPClient
+	// LatestFloodControl, if non-nil, contains the response from the latest API call's response headers X-Floodcontrol-{Limit, Remaining, ResetTime}
+	LatestFloodControl LimitData
+	// LatestRateLimit, if non-nil, contains the response from the latest API call's response headers X-Ratelimit-{Limit, Remaining, ResetTime}
+	LatestRateLimit LimitData
 	// Room gives access to the /room part of the API.
 	Room *RoomService
 	// User gives access to the /user part of the API.
@@ -99,6 +115,34 @@ var AuthTest = false
 // AuthTestResponse will contain the server response of any
 // API calls if AuthTest=true.
 var AuthTestResponse = map[string]interface{}{}
+
+// RetryOnRateLimit can be set to true to automatically retry the API call until it succeeds,
+// subject to the RateLimitRetryPolicy settings.  This behavior is only active when the API
+// call returns 429 (StatusTooManyRequests).
+var RetryOnRateLimit = false
+
+// RetryPolicy defines a RetryPolicy.
+type RetryPolicy struct {
+	// MaxRetries is the maximum number of attempts to make before returning an error
+	MaxRetries int
+	// MinDelay is the initial delay between attempts.  This value is multiplied by the current attempt number.
+	MinDelay time.Duration
+	// MaxDelay is the largest delay between attempts.
+	MaxDelay time.Duration
+	// JitterDelay is the amount of random jitter to add to the delay.
+	JitterDelay time.Duration
+	// JitterBias is the amount of jitter to remove from the delay.
+	JitterBias time.Duration
+}
+
+// NoRateLimitRetryPolicy defines the "never retry an API call" policy's values.
+var NoRateLimitRetryPolicy = RetryPolicy{0, 1 * time.Second, 1 * time.Second, 500 * time.Millisecond, 0 * time.Millisecond}
+
+// DefaultRateLimitRetryPolicy defines the "up to 300 times, 1 second apart, randomly adding an additional up-to-500 milliseconds of delay" policy.
+var DefaultRateLimitRetryPolicy = RetryPolicy{300, 1 * time.Second, 1 * time.Second, 500 * time.Millisecond, 0 * time.Millisecond}
+
+// RateLimitRetryPolicy can be set to a custom RetryPolicy's values, or to one of the two defined ones: NoRateLimitRetryPolicy or DefaultRateLimitRetryPolicy
+var RateLimitRetryPolicy = &DefaultRateLimitRetryPolicy
 
 // NewClient returns a new HipChat API client. You must provide a valid
 // AuthToken retrieved from your HipChat account.
@@ -246,10 +290,15 @@ func (c *Client) NewFileUploadRequest(method, urlStr string, v interface{}) (*ht
 
 // Do performs the request, the json received in the response is decoded
 // and stored in the value pointed by v.
-// Do can be used to perform the request created with NewRequest, as the latter
-// it should be used only for API requests not implemented in this library.
+// Do can be used to perform the request created with NewRequest, which
+// should be used only for API requests not implemented in this library.
 func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
-	resp, err := c.client.Do(req)
+	var policy = RateLimitRetryPolicy
+	if policy == nil || !RetryOnRateLimit {
+		policy = &NoRateLimitRetryPolicy
+	}
+
+	resp, err := c.doWithRetryPolicy(req, *policy)
 	if err != nil {
 		return nil, err
 	}
@@ -273,6 +322,58 @@ func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 		}
 	}
 	return resp, err
+}
+
+func (c *Client) doWithRetryPolicy(req *http.Request, policy RetryPolicy) (*http.Response, error) {
+	currentTry := 0
+
+	for willContinue(currentTry, policy) {
+		currentTry = currentTry + 1
+		resp, err := c.client.Do(req)
+		if err != nil {
+			return nil, err
+		}
+		c.captureRateLimits(resp)
+		if code := resp.StatusCode; code == http.StatusTooManyRequests {
+			if willContinue(currentTry, policy) {
+				doDelay(currentTry, policy)
+			}
+		} else {
+			return resp, nil
+		}
+	}
+	return nil, fmt.Errorf("max retries exceeded (%d)", policy.MaxRetries)
+}
+
+func willContinue(currentTry int, policy RetryPolicy) bool {
+	return currentTry <= policy.MaxRetries
+}
+
+func doDelay(currentTry int, policy RetryPolicy) {
+	jitter := time.Duration(rand.Int63n(2*int64(policy.JitterDelay))) - policy.JitterBias
+	linearDelay := time.Duration(currentTry)*policy.MinDelay + jitter
+	if linearDelay > policy.MaxDelay {
+		linearDelay = policy.MaxDelay
+	}
+	time.Sleep(time.Duration(linearDelay))
+}
+
+func setIfPresent(src string, dest *int) {
+	if len(src) > 0 {
+		v, err := strconv.Atoi(src)
+		if err != nil {
+			*dest = v
+		}
+	}
+}
+
+func (c *Client) captureRateLimits(resp *http.Response) {
+	setIfPresent(resp.Header.Get("X-Ratelimit-Limit"), &c.LatestRateLimit.Limit)
+	setIfPresent(resp.Header.Get("X-Ratelimit-Remaining"), &c.LatestRateLimit.Remaining)
+	setIfPresent(resp.Header.Get("X-Ratelimit-Reset"), &c.LatestRateLimit.ResetTime)
+	setIfPresent(resp.Header.Get("X-Floodcontrol-Limit"), &c.LatestFloodControl.Limit)
+	setIfPresent(resp.Header.Get("X-Floodcontrol-Remaining"), &c.LatestFloodControl.Remaining)
+	setIfPresent(resp.Header.Get("X-Floodcontrol-Reset"), &c.LatestFloodControl.ResetTime)
 }
 
 // addOptions adds the parameters in opt as URL query parameters to s.  opt
