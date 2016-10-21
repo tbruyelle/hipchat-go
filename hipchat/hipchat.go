@@ -49,9 +49,9 @@ type Client struct {
 	authToken string
 	BaseURL   *url.URL
 	client    HTTPClient
-	// LatestFloodControl, if non-nil, contains the response from the latest API call's response headers X-Floodcontrol-{Limit, Remaining, ResetTime}
+	// LatestFloodControl contains the response from the latest API call's response headers X-Floodcontrol-{Limit, Remaining, ResetTime}
 	LatestFloodControl LimitData
-	// LatestRateLimit, if non-nil, contains the response from the latest API call's response headers X-Ratelimit-{Limit, Remaining, ResetTime}
+	// LatestRateLimit contains the response from the latest API call's response headers X-Ratelimit-{Limit, Remaining, ResetTime}
 	LatestRateLimit LimitData
 	// Room gives access to the /room part of the API.
 	Room *RoomService
@@ -141,7 +141,8 @@ var NoRateLimitRetryPolicy = RetryPolicy{0, 1 * time.Second, 1 * time.Second, 50
 // DefaultRateLimitRetryPolicy defines the "up to 300 times, 1 second apart, randomly adding an additional up-to-500 milliseconds of delay" policy.
 var DefaultRateLimitRetryPolicy = RetryPolicy{300, 1 * time.Second, 1 * time.Second, 500 * time.Millisecond, 0 * time.Millisecond}
 
-// RateLimitRetryPolicy can be set to a custom RetryPolicy's values, or to one of the two defined ones: NoRateLimitRetryPolicy or DefaultRateLimitRetryPolicy
+// RateLimitRetryPolicy can be set to a custom RetryPolicy's values,
+// or to one of the two predefined ones: NoRateLimitRetryPolicy or DefaultRateLimitRetryPolicy
 var RateLimitRetryPolicy = &DefaultRateLimitRetryPolicy
 
 // NewClient returns a new HipChat API client. You must provide a valid
