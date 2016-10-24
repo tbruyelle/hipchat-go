@@ -63,6 +63,13 @@ type ID struct {
 	ID string `json:"id"`
 }
 
+// ExpandOptions represents a comma-separated list of API Title Expansions, as defined
+// at https://developer.atlassian.com/hipchat/guide/hipchat-rest-api/api-title-expansion
+// Example values might be "participants", or "items.statistics", or "modules,info"
+type ExpandOptions struct {
+	Expand string `url:"expand,omitempty"`
+}
+
 // ListOptions  specifies the optional parameters to various List methods that
 // support pagination.
 type ListOptions struct {
@@ -70,6 +77,8 @@ type ListOptions struct {
 	StartIndex int `url:"start-index,omitempty"`
 	// For paginated results, reprensents the number of items per page.
 	MaxResults int `url:"max-results,omitempty"`
+	// Expand is valid on all List API calls
+	ExpandOptions
 }
 
 // Color is set of hard-coded string values for the HipChat API for notifications.

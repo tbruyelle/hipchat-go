@@ -119,8 +119,8 @@ func TestSetHTTPClient_NilHTTPClient(t *testing.T) {
 func TestNewRequest(t *testing.T) {
 	c := NewClient("AuthToken")
 
-	inURL, outURL := "foo", defaultBaseURL+"foo?max-results=100&start-index=1"
-	opt := &ListOptions{StartIndex: 1, MaxResults: 100}
+	inURL, outURL := "foo", defaultBaseURL+"foo?expand=expansion&max-results=100&start-index=1"
+	opt := &ListOptions{ExpandOptions: ExpandOptions{Expand: "expansion"}, StartIndex: 1, MaxResults: 100}
 	inBody, outBody := &NotificationRequest{Message: "Hello"}, `{"message":"Hello"}`+"\n"
 	r, _ := c.NewRequest("GET", inURL, opt, inBody)
 

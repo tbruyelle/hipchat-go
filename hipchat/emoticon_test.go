@@ -32,7 +32,7 @@ func TestEmoticonList(t *testing.T) {
 		Links:      PageLinks{Links: Links{Self: "s"}, Prev: "p", Next: "n"},
 	}
 
-	opt := &EmoticonsListOptions{ListOptions{1, 100}, "type"}
+	opt := &EmoticonsListOptions{ListOptions{StartIndex: 1, MaxResults: 100}, "type"}
 	emos, _, err := client.Emoticon.List(opt)
 	if err != nil {
 		t.Fatalf("Emoticon.List returned an error %v", err)
