@@ -56,7 +56,7 @@ func TestWebhookList(t *testing.T) {
 		Links:      PageLinks{Links: Links{Self: "s"}, Prev: "a", Next: "b"},
 	}
 
-	opt := &ListWebhooksOptions{ListOptions{1, 100}}
+	opt := &ListWebhooksOptions{ListOptions{StartIndex: 1, MaxResults: 100}}
 
 	actual, _, err := client.Room.ListWebhooks("1", opt)
 	if err != nil {
