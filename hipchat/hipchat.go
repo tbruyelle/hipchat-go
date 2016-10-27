@@ -337,8 +337,9 @@ func (c *Client) doWithRetryPolicy(req *http.Request, policy RetryPolicy) (*http
 		}
 		c.captureRateLimits(resp)
 		if http.StatusTooManyRequests == resp.StatusCode {
+			resp.Body.Close()
 			if willContinue(currentTry, policy) {
-				doDelay(currentTry, policy)
+				sleep(currentTry, policy)
 			}
 		} else {
 			return resp, nil
@@ -351,7 +352,7 @@ func willContinue(currentTry int, policy RetryPolicy) bool {
 	return currentTry <= policy.MaxRetries
 }
 
-func doDelay(currentTry int, policy RetryPolicy) {
+func sleep(currentTry int, policy RetryPolicy) {
 	jitter := time.Duration(rand.Int63n(2*int64(policy.JitterDelay))) - policy.JitterBias
 	linearDelay := time.Duration(currentTry)*policy.MinDelay + jitter
 	if linearDelay > policy.MaxDelay {
