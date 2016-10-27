@@ -81,7 +81,7 @@ type ID struct {
 	ID string `json:"id"`
 }
 
-// ListOptions  specifies the optional parameters to various List methods that
+// ListOptions specifies the optional parameters to various List methods that
 // support pagination.
 //
 // For paginated results, StartIndex represents the first page to display.
@@ -89,6 +89,15 @@ type ID struct {
 type ListOptions struct {
 	StartIndex int `url:"start-index,omitempty"`
 	MaxResults int `url:"max-results,omitempty"`
+}
+
+// ExpandOptions specifies which Hipchat collections to automatically expand.
+// This functionality is primarily used to reduce the total time to receive the data.
+// It also reduces the sheer number of API calls from 1+N, to 1.
+//
+// cf:  https://developer.atlassian.com/hipchat/guide/hipchat-rest-api/api-title-expansion
+type ExpandOptions struct {
+	Expand string `url:"expand,omitempty"`
 }
 
 // Color is set of hard-coded string values for the HipChat API for notifications.

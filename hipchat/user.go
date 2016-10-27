@@ -121,6 +121,8 @@ func (u *UserService) Message(id string, msgReq *MessageRequest) (*http.Response
 // UserListOptions specified the parameters to the UserService.List method.
 type UserListOptions struct {
 	ListOptions
+	ExpandOptions
+
 	// Include active guest users in response.
 	IncludeGuests bool `url:"include-guests,omitempty"`
 	// Include deleted users in response.
