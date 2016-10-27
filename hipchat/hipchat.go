@@ -123,17 +123,27 @@ var RetryOnRateLimit = false
 
 // RetryPolicy defines a RetryPolicy.
 //
+// MaxRetries is the maximum number of attempts to make before returning an error
+// MinDelay is the initial delay between attempts.  This value is multiplied by the current attempt number.
+// MaxDelay is the largest delay between attempts.
+// JitterDelay is the amount of random jitter to add to the delay.
+// JitterBias is the amount of jitter to remove from the delay.
+//
+// The use of Jitter avoids inadvertant and undesirable synchronization of network
+// operations between otherwise unrelated clients.
+// cf: https://brooker.co.za/blog/2015/03/21/backoff.html and https://www.awsarchitectureblog.com/2015/03/backoff.html
+//
+// Using the values of JitterDelay = 250 milliseconds and a JitterBias of negative 125 milliseconds,
+// would result in a uniformly distributed Jitter between -125 and +125 milliseconds, centered
+// around the current trial Delay (between MinDelay and MaxDelay).
+//
+//
 type RetryPolicy struct {
-	// MaxRetries is the maximum number of attempts to make before returning an error
-	MaxRetries int
-	// MinDelay is the initial delay between attempts.  This value is multiplied by the current attempt number.
-	MinDelay time.Duration
-	// MaxDelay is the largest delay between attempts.
-	MaxDelay time.Duration
-	// JitterDelay is the amount of random jitter to add to the delay.
+	MaxRetries  int
+	MinDelay    time.Duration
+	MaxDelay    time.Duration
 	JitterDelay time.Duration
-	// JitterBias is the amount of jitter to remove from the delay.
-	JitterBias time.Duration
+	JitterBias  time.Duration
 }
 
 // NoRateLimitRetryPolicy defines the "never retry an API call" policy's values.
