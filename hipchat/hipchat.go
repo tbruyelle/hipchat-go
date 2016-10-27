@@ -371,6 +371,13 @@ func setIfPresent(src string, dest *int) {
 }
 
 func (c *Client) captureRateLimits(resp *http.Response) {
+	// BY DESIGN:
+	// if and only if the HTTP Response headers contain the header are the values updated.
+	// The Floodcontrol limits are orthogonal to the API limits.
+	// API Limits are consumed for each and every API call.
+	// The default value for API limits are 500 (app token) or 100 (user token).
+	// Flood Control limits are consumed only when a user message, room message, or room notification is sent.
+	// The default value for Flood Control limits is 30 per minute per user token.
 	setIfPresent(resp.Header.Get("X-Ratelimit-Limit"), &c.LatestRateLimit.Limit)
 	setIfPresent(resp.Header.Get("X-Ratelimit-Remaining"), &c.LatestRateLimit.Remaining)
 	setIfPresent(resp.Header.Get("X-Ratelimit-Reset"), &c.LatestRateLimit.ResetTime)
