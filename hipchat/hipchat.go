@@ -35,30 +35,32 @@ type HTTPClient interface {
 }
 
 // LimitData contains the latest Rate Limit or Flood Control data sent with every API call response.
+//
+// Limit is the number of API calls per period of time
+// Remaining is the current number of API calls that can be done before the ResetTime
+// ResetTime is the UTC time in Unix epoch format for when the full Limit of API calls will be restored.
 type LimitData struct {
-	// Limit is the number of API calls per period of time
-	Limit int
-	// Remaining is the current number of API calls that can be done before the ResetTime
+	Limit     int
 	Remaining int
-	// ResetTime is the UTC time in Unix epoch format for when the full Limit of API calls will be restored.
 	ResetTime int
 }
 
 // Client manages the communication with the HipChat API.
+//
+// LatestFloodControl contains the response from the latest API call's response headers X-Floodcontrol-{Limit, Remaining, ResetTime}
+// LatestRateLimit contains the response from the latest API call's response headers X-Ratelimit-{Limit, Remaining, ResetTime}
+// Room gives access to the /room part of the API.
+// User gives access to the /user part of the API.
+// Emoticon gives access to the /emoticon part of the API.
 type Client struct {
-	authToken string
-	BaseURL   *url.URL
-	client    HTTPClient
-	// LatestFloodControl contains the response from the latest API call's response headers X-Floodcontrol-{Limit, Remaining, ResetTime}
+	authToken          string
+	BaseURL            *url.URL
+	client             HTTPClient
 	LatestFloodControl LimitData
-	// LatestRateLimit contains the response from the latest API call's response headers X-Ratelimit-{Limit, Remaining, ResetTime}
-	LatestRateLimit LimitData
-	// Room gives access to the /room part of the API.
-	Room *RoomService
-	// User gives access to the /user part of the API.
-	User *UserService
-	// Emoticon gives access to the /emoticon part of the API.
-	Emoticon *EmoticonService
+	LatestRateLimit    LimitData
+	Room               *RoomService
+	User               *UserService
+	Emoticon           *EmoticonService
 }
 
 // Links represents the HipChat default links.
@@ -81,10 +83,11 @@ type ID struct {
 
 // ListOptions  specifies the optional parameters to various List methods that
 // support pagination.
+//
+// For paginated results, StartIndex represents the first page to display.
+// For paginated results, MaxResults reprensents the number of items per page.  Default value is 100.  Maximum value is 1000.
 type ListOptions struct {
-	// For paginated results, represents the first page to display.
 	StartIndex int `url:"start-index,omitempty"`
-	// For paginated results, reprensents the number of items per page.
 	MaxResults int `url:"max-results,omitempty"`
 }
 
