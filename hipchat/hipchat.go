@@ -336,7 +336,7 @@ func (c *Client) doWithRetryPolicy(req *http.Request, policy RetryPolicy) (*http
 			return nil, err
 		}
 		c.captureRateLimits(resp)
-		if code := resp.StatusCode; code == http.StatusTooManyRequests {
+		if http.StatusTooManyRequests == resp.StatusCode {
 			if willContinue(currentTry, policy) {
 				doDelay(currentTry, policy)
 			}
