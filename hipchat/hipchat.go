@@ -122,6 +122,7 @@ var AuthTestResponse = map[string]interface{}{}
 var RetryOnRateLimit = false
 
 // RetryPolicy defines a RetryPolicy.
+//
 type RetryPolicy struct {
 	// MaxRetries is the maximum number of attempts to make before returning an error
 	MaxRetries int
@@ -143,7 +144,7 @@ var DefaultRateLimitRetryPolicy = RetryPolicy{300, 1 * time.Second, 1 * time.Sec
 
 // RateLimitRetryPolicy can be set to a custom RetryPolicy's values,
 // or to one of the two predefined ones: NoRateLimitRetryPolicy or DefaultRateLimitRetryPolicy
-var RateLimitRetryPolicy = &DefaultRateLimitRetryPolicy
+var RateLimitRetryPolicy = DefaultRateLimitRetryPolicy
 
 // NewClient returns a new HipChat API client. You must provide a valid
 // AuthToken retrieved from your HipChat account.
@@ -294,12 +295,12 @@ func (c *Client) NewFileUploadRequest(method, urlStr string, v interface{}) (*ht
 // Do can be used to perform the request created with NewRequest, which
 // should be used only for API requests not implemented in this library.
 func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
-	var policy = RateLimitRetryPolicy
-	if policy == nil || !RetryOnRateLimit {
-		policy = &NoRateLimitRetryPolicy
+	var policy = NoRateLimitRetryPolicy
+	if !RetryOnRateLimit {
+		policy = RateLimitRetryPolicy
 	}
 
-	resp, err := c.doWithRetryPolicy(req, *policy)
+	resp, err := c.doWithRetryPolicy(req, policy)
 	if err != nil {
 		return nil, err
 	}
