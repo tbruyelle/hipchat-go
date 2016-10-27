@@ -145,6 +145,7 @@ func TestUserList(t *testing.T) {
 		testFormValues(t, r, values{
 			"start-index":     "1",
 			"max-results":     "100",
+			"expand":          "expansion",
 			"include-guests":  "true",
 			"include-deleted": "true",
 		})
@@ -178,6 +179,7 @@ func TestUserList(t *testing.T) {
 
 	opt := &UserListOptions{
 		ListOptions{StartIndex: 1, MaxResults: 100},
+		ExpandOptions{"expansion"},
 		true, true,
 	}
 
