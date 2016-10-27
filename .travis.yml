@@ -9,7 +9,7 @@ script:
     - go get -u github.com/golang/lint/golint
     - golint ./...
     - test `gofmt -l . | wc -l` = 0
-    - make all
+    - make
 
 matrix:
     allow_failures:
