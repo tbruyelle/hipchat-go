@@ -309,7 +309,7 @@ func (c *Client) NewFileUploadRequest(method, urlStr string, v interface{}) (*ht
 // should be used only for API requests not implemented in this library.
 func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 	var policy = NoRateLimitRetryPolicy
-	if !RetryOnRateLimit {
+	if RetryOnRateLimit {
 		policy = RateLimitRetryPolicy
 	}
 
