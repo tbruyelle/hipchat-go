@@ -54,6 +54,7 @@ func TestRoomList(t *testing.T) {
 		testFormValues(t, r, values{
 			"start-index":      "1",
 			"max-results":      "10",
+			"expand":           "expansion",
 			"include-private":  "true",
 			"include-archived": "true",
 		})
@@ -66,7 +67,7 @@ func TestRoomList(t *testing.T) {
 		}`)
 	})
 	want := &Rooms{Items: []Room{{ID: 1, Name: "n"}}, StartIndex: 1, MaxResults: 1, Links: PageLinks{Links: Links{Self: "s"}}}
-	opt := &RoomsListOptions{ListOptions{1, 10}, true, true}
+	opt := &RoomsListOptions{ListOptions{1, 10}, ExpandOptions{"expansion"}, true, true}
 	rooms, _, err := client.Room.List(opt)
 	if err != nil {
 		t.Fatalf("Room.List returns an error %v", err)
@@ -257,6 +258,7 @@ func TestRoomHistory(t *testing.T) {
 		testFormValues(t, r, values{
 			"start-index":     "1",
 			"max-results":     "100",
+			"expand":          "expansion",
 			"date":            "date",
 			"timezone":        "tz",
 			"reverse":         "true",
@@ -285,7 +287,7 @@ func TestRoomHistory(t *testing.T) {
 	})
 
 	opt := &HistoryOptions{
-		ListOptions{1, 100}, "date", "tz", true, "end-date", true,
+		ListOptions{1, 100}, ExpandOptions{"expansion"}, "date", "tz", true, "end-date", true,
 	}
 	hist, _, err := client.Room.History("1", opt)
 	if err != nil {

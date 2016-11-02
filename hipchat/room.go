@@ -360,6 +360,7 @@ func (c *Card) AddAttribute(mainLabel, subLabel, url, iconURL string) {
 // method.
 type RoomsListOptions struct {
 	ListOptions
+	ExpandOptions
 
 	// Include private rooms in the result, API defaults to true
 	IncludePrivate bool `url:"include-private,omitempty"`
@@ -499,6 +500,7 @@ func (r *RoomService) Update(id string, roomReq *UpdateRoomRequest) (*http.Respo
 // HistoryOptions represents a HipChat room chat history request.
 type HistoryOptions struct {
 	ListOptions
+	ExpandOptions
 
 	// Either the latest date to fetch history for in ISO-8601 format, or 'recent' to fetch
 	// the latest 75 messages. Paging isn't supported for 'recent', however they are real-time
