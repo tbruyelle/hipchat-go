@@ -279,7 +279,7 @@ type GlanceUpdate struct {
 
 // GlanceContent is a component of a Glance
 type GlanceContent struct {
-	Status   GlanceStatus   `json:"status"`
+	Status   GlanceStatus   `json:"status,omitempty"`
 	Metadata interface{}    `json:"metadata,omitempty"`
 	Label    AttributeValue `json:"label"` // AttributeValue{Type, Label}
 }
