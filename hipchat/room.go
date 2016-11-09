@@ -248,7 +248,7 @@ type GlanceRequest struct {
 	Key        string             `json:"key"`
 	Name       GlanceName         `json:"name"`
 	Target     string             `json:"target"`
-	QueryURL   string             `json:"queryUrl"`
+	QueryURL   string             `json:"queryUrl,omitempty"`
 	Icon       Icon               `json:"icon"`
 	Conditions []*GlanceCondition `json:"conditions,omitempty"`
 }
