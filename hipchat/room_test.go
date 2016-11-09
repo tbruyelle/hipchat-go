@@ -398,7 +398,7 @@ func TestRoomGlanceUpdate(t *testing.T) {
 			&GlanceUpdate{
 				Key: "abc",
 				Content: GlanceContent{
-					Status: GlanceStatus{Type: "lozenge", Value: AttributeValue{Type: "default", Label: "something"}},
+					Status: &GlanceStatus{Type: "lozenge", Value: AttributeValue{Type: "default", Label: "something"}},
 					Label:  AttributeValue{Type: "html", Value: "hello"},
 				},
 			},
@@ -539,7 +539,7 @@ func TestGlanceUpdateRequestJSONEncodeWithString(t *testing.T) {
 			&GlanceUpdate{
 				Key: "abc",
 				Content: GlanceContent{
-					Status: GlanceStatus{Type: "lozenge", Value: AttributeValue{Type: "default", Label: "something"}},
+					Status: &GlanceStatus{Type: "lozenge", Value: AttributeValue{Type: "default", Label: "something"}},
 					Label:  AttributeValue{Type: "html", Value: "hello"},
 				},
 			},
@@ -564,7 +564,7 @@ func TestGlanceContentJSONEncodeWithString(t *testing.T) {
 	}{
 		{
 			GlanceContent{
-				Status: GlanceStatus{Type: "lozenge", Value: AttributeValue{Type: "default", Label: "something"}},
+				Status: &GlanceStatus{Type: "lozenge", Value: AttributeValue{Type: "default", Label: "something"}},
 				Label:  AttributeValue{Type: "html", Value: "hello"},
 			},
 			`{"status":{"type":"lozenge","value":{"type":"default","label":"something"}},"label":{"type":"html","value":"hello"}}`,
@@ -590,7 +590,7 @@ func TestGlanceContentJSONDecodeWithObject(t *testing.T) {
 	}{
 		{
 			GlanceContent{
-				Status: GlanceStatus{Type: "lozenge", Value: AttributeValue{Type: "default", Label: "something"}},
+				Status: &GlanceStatus{Type: "lozenge", Value: AttributeValue{Type: "default", Label: "something"}},
 				Label:  AttributeValue{Type: "html", Value: "hello"},
 			},
 			`{"status":{"type":"lozenge","value":{"type":"default","label":"something"}},"label":{"type":"html","value":"hello"}}`,
@@ -605,8 +605,8 @@ func TestGlanceContentJSONDecodeWithObject(t *testing.T) {
 			t.Errorf("Decoding of GlanceContent failed: %v", err)
 		}
 
-		if actual.Status != tt.gc.Status {
-			t.Fatalf("Unexpected GlanceContent.Status: %v", actual.Status)
+		if !reflect.DeepEqual(actual.Status, tt.gc.Status) {
+			t.Fatalf("Unexpected GlanceContent.Status: %+v, want %+v", actual.Status, tt.gc.Status)
 		}
 
 		if actual.Label != tt.gc.Label {
@@ -621,12 +621,12 @@ func TestGlanceContentJSONDecodeWithObject(t *testing.T) {
 
 func TestGlanceStatusJSONEncodeWithString(t *testing.T) {
 	gsTests := []struct {
-		gs       GlanceStatus
+		gs       *GlanceStatus
 		expected string
 	}{
-		{GlanceStatus{Type: "lozenge", Value: AttributeValue{Type: "default", Label: "something"}},
+		{&GlanceStatus{Type: "lozenge", Value: AttributeValue{Type: "default", Label: "something"}},
 			`{"type":"lozenge","value":{"type":"default","label":"something"}}`},
-		{GlanceStatus{Type: "icon", Value: Icon{URL: "z", URL2x: "x"}},
+		{&GlanceStatus{Type: "icon", Value: Icon{URL: "z", URL2x: "x"}},
 			`{"type":"icon","value":{"url":"z","url@2x":"x"}}`},
 	}
 
@@ -644,12 +644,12 @@ func TestGlanceStatusJSONEncodeWithString(t *testing.T) {
 
 func TestGlanceStatusJSONDecodeWithObject(t *testing.T) {
 	gsTests := []struct {
-		gs      GlanceStatus
+		gs      *GlanceStatus
 		encoded string
 	}{
-		{GlanceStatus{Type: "lozenge", Value: AttributeValue{Type: "default", Label: "something"}},
+		{&GlanceStatus{Type: "lozenge", Value: AttributeValue{Type: "default", Label: "something"}},
 			`{"type":"lozenge","value":{"type":"default","label":"something"}}`},
-		{GlanceStatus{Type: "icon", Value: Icon{URL: "z", URL2x: "x"}},
+		{&GlanceStatus{Type: "icon", Value: Icon{URL: "z", URL2x: "x"}},
 			`{"type":"icon","value":{"url":"z","url@2x":"x"}}`},
 	}
 
