@@ -637,8 +637,8 @@ func (r *RoomService) UpdateGlance(id string, glanceUpdateReq *GlanceUpdateReque
 // AddMember adds a member to a private room and sends member's unavailable presence to all room members asynchronously.
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/add_member
-func (r *RoomService) AddMember(roomId string, userId string, addMemberReq *AddMemberRequest) (*http.Response, error) {
-	req, err := r.client.NewRequest("PUT", fmt.Sprintf("room/%s/member/%s", roomId, userId), nil, addMemberReq)
+func (r *RoomService) AddMember(roomID string, userID string, addMemberReq *AddMemberRequest) (*http.Response, error) {
+	req, err := r.client.NewRequest("PUT", fmt.Sprintf("room/%s/member/%s", roomID, userID), nil, addMemberReq)
 	if err != nil {
 		return nil, err
 	}
@@ -649,8 +649,8 @@ func (r *RoomService) AddMember(roomId string, userId string, addMemberReq *AddM
 // RemoveMember removes a member from a private room
 //
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/remove_member
-func (r *RoomService) RemoveMember(roomId string, userId string) (*http.Response, error) {
-	req, err := r.client.NewRequest("DELETE", fmt.Sprintf("room/%s/member/%s", roomId, userId), nil, nil)
+func (r *RoomService) RemoveMember(roomID string, userID string) (*http.Response, error) {
+	req, err := r.client.NewRequest("DELETE", fmt.Sprintf("room/%s/member/%s", roomID, userID), nil, nil)
 	if err != nil {
 		return nil, err
 	}
