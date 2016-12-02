@@ -670,3 +670,39 @@ func TestGlanceStatusJSONDecodeWithObject(t *testing.T) {
 		}
 	}
 }
+
+func TestAddMember(t *testing.T) {
+	setup()
+	defer teardown()
+
+	args := &AddMemberRequest{Roles: []string{"room_member"}}
+
+	mux.HandleFunc("/room/1/member/user", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "PUT")
+		v := new(AddMemberRequest)
+		json.NewDecoder(r.Body).Decode(v)
+
+		if !reflect.DeepEqual(v, args) {
+			t.Errorf("Request body %+v, want %+v", v, args)
+		}
+	})
+
+	_, err := client.Room.AddMember("1", "user", args)
+	if err != nil {
+		t.Fatalf("Room.AddMember returns an error %v", err)
+	}
+}
+
+func TestRemoveMember(t *testing.T) {
+	setup()
+	defer teardown()
+
+	mux.HandleFunc("/room/1/member/user", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "DELETE")
+	})
+
+	_, err := client.Room.RemoveMember("1", "user")
+	if err != nil {
+		t.Fatalf("Room.RemoveMember returns an error %v", err)
+	}
+}
