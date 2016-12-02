@@ -243,6 +243,11 @@ type InviteRequest struct {
 	Reason string `json:"reason"`
 }
 
+// AddMemberRequest represents a HipChat add member request
+type AddMemberRequest struct {
+	Roles []string `json:"roles,omitempty"`
+}
+
 // GlanceRequest represents a HipChat room ui glance
 type GlanceRequest struct {
 	Key        string             `json:"key"`
@@ -622,6 +627,30 @@ func (r *RoomService) DeleteGlance(id string, glanceReq *GlanceRequest) (*http.R
 // HipChat API docs: https://www.hipchat.com/docs/apiv2/method/room_addon_ui_update
 func (r *RoomService) UpdateGlance(id string, glanceUpdateReq *GlanceUpdateRequest) (*http.Response, error) {
 	req, err := r.client.NewRequest("POST", fmt.Sprintf("addon/ui/room/%s", id), nil, glanceUpdateReq)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.client.Do(req, nil)
+}
+
+// AddMember adds a member to a private room and sends member's unavailable presence to all room members asynchronously.
+//
+// HipChat API docs: https://www.hipchat.com/docs/apiv2/method/add_member
+func (r *RoomService) AddMember(roomID string, userID string, addMemberReq *AddMemberRequest) (*http.Response, error) {
+	req, err := r.client.NewRequest("PUT", fmt.Sprintf("room/%s/member/%s", roomID, userID), nil, addMemberReq)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.client.Do(req, nil)
+}
+
+// RemoveMember removes a member from a private room
+//
+// HipChat API docs: https://www.hipchat.com/docs/apiv2/method/remove_member
+func (r *RoomService) RemoveMember(roomID string, userID string) (*http.Response, error) {
+	req, err := r.client.NewRequest("DELETE", fmt.Sprintf("room/%s/member/%s", roomID, userID), nil, nil)
 	if err != nil {
 		return nil, err
 	}
