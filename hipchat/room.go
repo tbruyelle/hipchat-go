@@ -182,7 +182,7 @@ type Thumbnail struct {
 	URL    string `json:"url"`
 	URL2x  string `json:"url@2x,omitempty"`
 	Width  uint   `json:"width,omitempty"`
-	Height uint   `json:"url,omitempty"`
+	Height uint   `json:"height,omitempty"`
 }
 
 // Attribute represents an attribute on a Card
