@@ -93,7 +93,7 @@ type Card struct {
 	Format      string          `json:"format,omitempty"`
 	URL         string          `json:"url,omitempty"`
 	Title       string          `json:"title"`
-	Thumbnail   *Icon           `json:"thumbnail,omitempty"`
+	Thumbnail   *Thumbnail      `json:"thumbnail,omitempty"`
 	Activity    *Activity       `json:"activity,omitempty"`
 	Attributes  []Attribute     `json:"attributes,omitempty"`
 	ID          string          `json:"id,omitempty"`
