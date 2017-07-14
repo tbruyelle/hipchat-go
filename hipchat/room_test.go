@@ -126,6 +126,32 @@ func TestRoomNotification(t *testing.T) {
 	}
 }
 
+func TestRoomNotificationCardWithThumbnail(t *testing.T) {
+	setup()
+	defer teardown()
+
+	thumbnail := &Thumbnail{URL: "http://foo.com", URL2x: "http://foo2x.com", Width: 1, Height: 2}
+	description := CardDescription{Format: "format", Value: "value"}
+	card := &Card{Style: "style", Description: description, Title: "title", Thumbnail: thumbnail}
+	args := &NotificationRequest{Card: card}
+
+	mux.HandleFunc("/room/2/notification", func(w http.ResponseWriter, r *http.Request) {
+		testMethod(t, r, "POST")
+		v := new(NotificationRequest)
+		json.NewDecoder(r.Body).Decode(v)
+
+		if !reflect.DeepEqual(v, args) {
+			t.Errorf("Request body %+v, want %+v", v, args)
+		}
+		w.WriteHeader(http.StatusNoContent)
+	})
+
+	_, err := client.Room.Notification("2", args)
+	if err != nil {
+		t.Fatalf("Room.Notification returns an error %v", err)
+	}
+}
+
 func TestRoomMessage(t *testing.T) {
 	setup()
 	defer teardown()
