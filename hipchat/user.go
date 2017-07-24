@@ -118,6 +118,40 @@ func (u *UserService) Message(id string, msgReq *MessageRequest) (*http.Response
 	return u.client.Do(req, nil)
 }
 
+// UserLatestHistoryOptions represents a HipChat room chat latest history request.
+type UserLatestHistoryOptions struct {
+
+	// The maximum number of messages to return. The maximum number of messages to return.
+	MaxResults int `url:"max-results,omitempty"`
+
+	// Your timezone. Must be a supported timezone.
+	Timezone string `url:"timezone,omitempty"`
+
+	// The id of the message that is oldest in the set of messages to be
+	// returned. The server will not return any messages that chronologically
+	// precede this message.
+	NotBefore string `url:"not-before,omitempty"`
+
+	// Include records about deleted messages into results (body of a message
+	// isn't returned).
+	IncludeDeleted bool `url:"include_deleted,omitempty"`
+}
+
+// Latest fetches the latest chat history for the 1:1 chat with the user
+// identified by id.
+//
+// HipChat API docs:
+// https://www.hipchat.com/docs/apiv2/method/view_recent_privatechat_history
+func (u *UserService) Latest(id string, opt *UserLatestHistoryOptions) (*History, *http.Response, error) {
+	req, err := u.client.NewRequest("GET", fmt.Sprintf("user/%s/history/latest", id), opt, nil)
+	h := new(History)
+	resp, err := u.client.Do(req, h)
+	if err != nil {
+		return nil, resp, err
+	}
+	return h, resp, nil
+}
+
 // UserListOptions specified the parameters to the UserService.List method.
 type UserListOptions struct {
 	ListOptions
