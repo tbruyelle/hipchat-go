@@ -75,9 +75,38 @@ type Users struct {
 	Links      Links  `json:"links"`
 }
 
+// CreateUserRequest represents a HipChat user creation request.
+type CreateUserRequest struct {
+	ID          int      `json:"id,omitempty"`
+	Name        string   `json:"name"`
+	Roles       []string `json:"roles,omitempty"`
+	Title       string   `json:"title,omitempty"`
+	MentionName string   `json:"mention_name,omitempty"`
+	Timezone    string   `json:"timezone,omitempty"`
+	Password    string   `json:"password,omitempty"`
+	Email       string   `json:"email"`
+}
+
 // UserService gives access to the user related methods of the API.
 type UserService struct {
 	client *Client
+}
+
+// Create creates a user.
+//
+// HipChat API docs: https://www.hipchat.com/docs/apiv2/method/create_user
+func (u *UserService) Create(userReq *CreateUserRequest) (*CreateUserRequest, *http.Response, error) {
+	req, err := u.client.NewRequest(http.MethodPost, "user", nil, userReq)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	resp, err := u.client.Do(req, userReq)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return userReq, resp, nil
 }
 
 // ShareFile sends a file to the user specified by the id.
