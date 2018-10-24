@@ -7,7 +7,7 @@ go:
 
 install: go get -v ./hipchat
 script:
-    - go get -u github.com/golang/lint/golint
+    - go get -u golang.org/x/lint/golint
     - golint ./...
     - test `gofmt -l . | wc -l` = 0
     - make
